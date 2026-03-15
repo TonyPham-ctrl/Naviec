@@ -457,3 +457,57 @@ Potential extensions include:
 * spike prediction models
 * reinforcement learning trading strategies
 * real-time market data ingestion
+
+
+# Repo structure
+nem-forecast-optimizer/
+│
+├── data/                      # Raw & processed data
+│   ├── raw/                   # Raw CSV/API dumps
+│   ├── processed/             # Cleaned / feature-engineered data
+│   └── aemo/                  # Direct AEMO datasets or API scripts
+│
+├── notebooks/                 # Jupyter notebooks for EDA & prototyping
+│   ├── 01_data_exploration.ipynb
+│   └── 02_model_testing.ipynb
+│
+├── src/                       # Main source code
+│   ├── data/                  # Data ingestion & preprocessing
+│   │   ├── fetch_aemo.py
+│   │   └── preprocess.py
+│   │
+│   ├── models/                # ML/DL forecasting models
+│   │   ├── train_model.py
+│   │   └── evaluate_model.py
+│   │
+│   ├── optimizer/             # Stochastic / C++ optimizer wrapper
+│   │   ├── cpp/               # C++ source files
+│   │   ├── build/             # Compiled binaries
+│   │   └── run_optimizer.py   # Python wrapper for C++ code
+│   │
+│   ├── api/                   # FastAPI / Flask for serving forecasts
+│   │   ├── main.py
+│   │   └── routes.py
+│   │
+│   └── utils/                 # Helper functions, logging, metrics
+│       ├── logger.py
+│       └── metrics.py
+│
+├── tests/                     # Unit / integration tests
+│   ├── test_data.py
+│   ├── test_models.py
+│   └── test_optimizer.py
+│
+├── scripts/                   # Helper scripts (e.g., db load, run experiments)
+│   ├── run_full_pipeline.sh
+│   └── update_postgres.py
+│
+├── config/                    # Config files (YAML/JSON)
+│   ├── db_config.yaml
+│   ├── model_config.yaml
+│   └── optimizer_config.yaml
+│
+├── requirements.txt           # Python dependencies
+├── CMakeLists.txt             # If building C++ optimizer
+├── README.md                  # Project overview, setup, and usage
+└── .gitignore
