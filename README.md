@@ -8,7 +8,7 @@ main => Final product post-testing and validation
 
 staging => Used to merge features and for integration QAs
 dev => Used to be cloned to develop new features
-when working on a feature, clone from staging and name it dev/.../...your_name
+when working on a feature, clone from staging and name it dev/...
 commit at the end of every session, and pull from dev at the start of every session
 
 after local testing, produce a PR to staging for interation QAs
