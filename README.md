@@ -460,7 +460,7 @@ Potential extensions include:
 
 
 # Repo structure
-nem-forecast-optimizer/
+Naviec/
 │
 ├── data/                      # Raw & processed data
 │   ├── raw/                   # Raw CSV/API dumps
@@ -472,7 +472,7 @@ nem-forecast-optimizer/
 │   └── 02_model_testing.ipynb
 │
 ├── src/                       # Main source code
-│   ├── data/                  # Data ingestion & preprocessing
+│   ├── data_ingestion/        # Data ingestion & preprocessing
 │   │   ├── fetch_aemo.py
 │   │   └── preprocess.py
 │   │
