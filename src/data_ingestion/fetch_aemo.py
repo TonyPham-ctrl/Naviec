@@ -9,7 +9,6 @@ class NEMDataFetcher:
         os.makedirs(raw_data_cache, exist_ok=True)
 
     def _generate_date_range(self, start_time: str, end_time: str):
-
         start = datetime.strptime(start_time, "%Y/%m/%d %H:%M:%S")
         end = datetime.strptime(end_time, "%Y/%m/%d %H:%M:%S")
         dates = []
