@@ -4,9 +4,9 @@ from nemosis import dynamic_data_compiler
 from datetime import datetime, timedelta
 
 class NEMDataFetcher:
-    def __init__(self, raw_data_cache: str):
-        self.raw_data_cache = raw_data_cache
-        os.makedirs(raw_data_cache, exist_ok=True)
+    def __init__(self, path: str):
+        self.path = path
+        os.makedirs(path, exist_ok=True)
 
     def _generate_date_range(self, start_time: str, end_time: str):
         start = datetime.strptime(start_time, "%Y/%m/%d %H:%M:%S")
@@ -45,9 +45,9 @@ class NEMDataFetcher:
         return saved_files
 
 
-# fetcher = NEMDataFetcher("/home/tonypham/Naviec/data")
-# files = fetcher.fetch_and_store(
-#     start_time="2024/01/01 00:00:00",
-#     end_time="2024/02/01 00:00:00",
-#     table="DISPATCHPRICE"
-# )
+fetcher = NEMDataFetcher("~/Documents/Project/Naviec/data/")
+files = fetcher.fetch_and_store(
+    start_time="2024/01/01 00:00:00",
+    end_time="2024/02/01 00:00:00",
+    table="DISPATCHPRICE"
+)
