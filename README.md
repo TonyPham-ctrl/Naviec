@@ -8,7 +8,7 @@ main => Final product post-testing and validation
 
 staging => Used to merge features and for integration QAs
 dev => Used to be cloned to develop new features
-when working on a feature, clone from staging and name it dev/.../...your_name
+when working on a feature, clone from staging and name it dev/...
 commit at the end of every session, and pull from dev at the start of every session
 
 after local testing, produce a PR to staging for interation QAs
@@ -58,8 +58,20 @@ Backtesting Results
         ↓
 API + Dashboard
 ```
+# Running The Pipeline
 
----
+Use the CLI entrypoint at `src/main.py` to run individual stages or the full pipeline.
+
+```bash
+# Run data ingestion only
+python -m src.main ingest
+
+# Run all available stages
+python -m src.main all
+
+# Delete all files under the data directory
+python -m src.main clean
+
 
 # Data Sources
 
@@ -457,3 +469,63 @@ Potential extensions include:
 * spike prediction models
 * reinforcement learning trading strategies
 * real-time market data ingestion
+
+
+# Repo structure
+Naviec/
+│
+├── data/                      # Raw & processed data
+│   ├── raw/                   # Raw CSV/API dumps
+│   ├── processed/             # Cleaned / feature-engineered data
+│   └── aemo/                  # Direct AEMO datasets or API scripts
+│
+├── notebooks/                 # Jupyter notebooks for EDA & prototyping
+│   ├── 01_data_exploration.ipynb
+│   └── 02_model_testing.ipynb
+│
+├── src/                       # Main source code
+│   ├── data_ingestion/        # Data ingestion & preprocessing
+│   │   ├── fetch_aemo.py        # downloads raw zip / csv
+│   │   ├── preprocess.py        # cleans + transforms
+│   │   ├─  clean_data.py        # removes files from ../../data folder
+│   │   ├── db/
+│   │   │   ├── connection.py    # postgres connection pool
+│   │   │   ├── schema.py        # table definitions
+│   │   │   ├── loader.py        # insert / upsert logic
+│   │   │   └── queries.py       # reusable SQL
+│   │
+│   ├── models/                # ML/DL forecasting models
+│   │   ├── train_model.py
+│   │   └── evaluate_model.py
+│   │
+│   ├── optimizer/             # Stochastic / C++ optimizer wrapper
+│   │   ├── cpp/               # C++ source files
+│   │   ├── build/             # Compiled binaries
+│   │   └── run_optimizer.py   # Python wrapper for C++ code
+│   │
+│   ├── api/                   # FastAPI / Flask for serving forecasts
+│   │   ├── main.py
+│   │   └── routes.py
+│   │
+│   └── utils/                 # Helper functions, logging, metrics
+│       ├── logger.py
+│       └── metrics.py
+│
+├── tests/                     # Unit / integration tests
+│   ├── test_data.py
+│   ├── test_models.py
+│   └── test_optimizer.py
+│
+├── scripts/                   # Helper scripts (e.g., db load, run experiments)
+│   ├── run_full_pipeline.sh
+│   └── update_postgres.py
+│
+├── config/                    # Config files (YAML/JSON)
+│   ├── db_config.yaml
+│   ├── model_config.yaml
+│   └── optimizer_config.yaml
+│
+├── requirements.txt           # Python dependencies
+├── CMakeLists.txt             # If building C++ optimizer
+├── README.md                  # Project overview, setup, and usage
+└── .gitignore
