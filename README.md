@@ -473,8 +473,13 @@ Naviec/
 │
 ├── src/                       # Main source code
 │   ├── data_ingestion/        # Data ingestion & preprocessing
-│   │   ├── fetch_aemo.py
-│   │   └── preprocess.py
+│   │   ├── fetch_aemo.py        # downloads raw zip / csv
+│   │   ├── preprocess.py        # cleans + transforms
+│   │   ├── db/
+│   │   │   ├── connection.py    # postgres connection pool
+│   │   │   ├── schema.py        # table definitions
+│   │   │   ├── loader.py        # insert / upsert logic
+│   │   │   └── queries.py       # reusable SQL
 │   │
 │   ├── models/                # ML/DL forecasting models
 │   │   ├── train_model.py
