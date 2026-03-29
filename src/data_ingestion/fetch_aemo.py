@@ -17,7 +17,9 @@ class NEMDataFetcher:
                 None
         '''
         if path == None:
-            self.datapath = os.path.join(os.getcwd(),'data')
+            BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+            self.datapath = os.path.join(BASE_DIR, "..", "..", "data")
+            self.datapath = os.path.abspath(self.datapath)
             os.makedirs(self.datapath, exist_ok=True)
         else:
             self.datapath = os.path.join(path, 'data')
@@ -88,7 +90,8 @@ class NEMDataFetcher:
         start=start_time.strftime(format)
         end=end_time.strftime(format)
         df=dynamic_data_compiler(start_time=start,end_time=end,table_name=table,raw_data_location=self.datapath,fformat='csv')
-        df.to_csv('/Users/trihai/Documents/Project/Naviec/data/Data.csv',index=False)
+        output_file = os.path.join(self.datapath, "aemo_data.csv")
+        df.to_csv(output_file, index=False)
 
         # format="%Y/%m/%d 00:00:00"
         # for date in dates:
