@@ -58,8 +58,20 @@ Backtesting Results
         ↓
 API + Dashboard
 ```
+# Running The Pipeline
 
----
+Use the CLI entrypoint at `src/main.py` to run individual stages or the full pipeline.
+
+```bash
+# Run data ingestion only
+python -m src.main ingest
+
+# Run all available stages
+python -m src.main all
+
+# Delete all files under the data directory
+python -m src.main clean
+
 
 # Data Sources
 
@@ -475,6 +487,7 @@ Naviec/
 │   ├── data_ingestion/        # Data ingestion & preprocessing
 │   │   ├── fetch_aemo.py        # downloads raw zip / csv
 │   │   ├── preprocess.py        # cleans + transforms
+│   │   ├─  clean_data.py        # removes files from ../../data folder
 │   │   ├── db/
 │   │   │   ├── connection.py    # postgres connection pool
 │   │   │   ├── schema.py        # table definitions
