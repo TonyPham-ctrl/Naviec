@@ -2,7 +2,7 @@ import os
 import typing
 import pandas as pd
 import numpy as np
-from nemosis import dynamic_data_compiler, defaults, cache_compiler
+from nemosis import dynamic_data_compiler, static_table
 import datetime as dt
 
 class NEMDataFetcher:
@@ -63,7 +63,7 @@ class NEMDataFetcher:
         month = str(date.month).zfill(2)
         day = str(date.day).zfill(2)
 
-        # This makes sure that the name would be, say, 2020|00|00 (The "|" is for visualisation).
+        # This makes sure that the name would be consistent, say, 2020|00|00 (The "|" is for visualisation).
         #===================================
 
         folder = os.path.join(self.datapath, year, month, day)
@@ -87,9 +87,14 @@ class NEMDataFetcher:
         format='%Y/%m/%d %H:%M:%S'
         start=start_time.strftime(format)
         end=end_time.strftime(format)
-        df=dynamic_data_compiler(start_time=start,end_time=end,table_name=table,raw_data_location=self.datapath,fformat='csv')
-        df.to_csv('/Users/trihai/Documents/Project/Naviec/data/Data.csv',index=False)
-
+        csv=dynamic_data_compiler(start, end, table, self.datapath, fformat='csv')
+        if csv is None or csv.empty:
+            print('Empty data fetched.')
+            return
+        
+        save_path = self._get_files_save_path(start_time, table)
+        csv.to_csv(save_path, index=False)
+        
         # format="%Y/%m/%d 00:00:00"
         # for date in dates:
             # day_start = date.strftime(format)
@@ -105,14 +110,3 @@ class NEMDataFetcher:
             # saved_files.append(file_path)
 
         # return saved_files
-
-time = dt.datetime(2016,4,20,0,0,0)
-
-fetcher = NEMDataFetcher()
-files = fetcher.fetch_and_store(
-    start_time = time-dt.timedelta(days=10),
-    end_time = time,
-    table = 'DISPATCHPRICE'
-)
-
-
