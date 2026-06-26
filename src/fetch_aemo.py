@@ -17,13 +17,18 @@ class NEMDataFetcher:
                 None
         '''
         if path == None:
-            self.datapath = os.path.join(os.getcwd(),'data')
-            os.makedirs(self.datapath, exist_ok=True)
+            self.__datapath = os.path.join(os.getcwd(),'data')
+            os.makedirs(self.__datapath, exist_ok=True)
         else:
-            self.datapath = os.path.join(path, 'data')
-            os.makedirs(self.datapath, exist_ok=True)
+            self.__datapath = os.path.join(path, 'data')
+            os.makedirs(self.__datapath, exist_ok=True)
+        
+        self.__filepath = os.path.join(self.__datapath, 'full_data.csv')
 
-    def _generate_date_range(self, start_time: dt.datetime, end_time: dt.datetime) -> np.ndarray[dt.datetime]:
+    def get_file_path(self):
+        return self.__datapath
+
+    def __generate_date_range(self, start_time: dt.datetime, end_time: dt.datetime) -> np.ndarray[dt.datetime]:
         '''
             Generate a numpy array of dates using the given start_time and end_time
 
@@ -47,7 +52,7 @@ class NEMDataFetcher:
 
         return dates
 
-    def _get_files_save_path(self, date: dt.datetime, table: str) -> str:
+    def __get_files_save_path(self, date: dt.datetime, table: str) -> str:
         '''
             Generate directories for each of sub csv files. 
 
@@ -66,7 +71,7 @@ class NEMDataFetcher:
         # This makes sure that the name would be consistent, say, 2020|00|00 (The "|" is for visualisation).
         #===================================
 
-        folder = os.path.join(self.datapath, year, month, day)
+        folder = os.path.join(self.__datapath, year, month, day)
         os.makedirs(folder, exist_ok=True)
 
         return os.path.join(folder, f"{table}.csv")
@@ -87,13 +92,15 @@ class NEMDataFetcher:
         format='%Y/%m/%d %H:%M:%S'
         start=start_time.strftime(format)
         end=end_time.strftime(format)
-        csv=dynamic_data_compiler(start, end, table, self.datapath, fformat='csv')
+        csv=dynamic_data_compiler(start_time=start,end_time=end, table_name=table, raw_data_location=self.__datapath, fformat='csv', filter_cols=['REGIONID'], filter_values=(['SA1'],))
+
         if csv is None or csv.empty:
             print('Empty data fetched.')
             return
         
-        save_path = self._get_files_save_path(start_time, table)
-        csv.to_csv(save_path, index=False)
+        # save_path = self.__get_files_save_path(start_time, table)
+        csv.to_csv(self.__filepath, index=False)
+
         
         # format="%Y/%m/%d 00:00:00"
         # for date in dates:
@@ -110,3 +117,11 @@ class NEMDataFetcher:
             # saved_files.append(file_path)
 
         # return saved_files
+    
+    def get_working_dataset(self):
+        # Using pandas to drop the unnecessary columns for now. Only focus on RRP, SETTLEMENTDATE. The REGIONID is SA1 by default.
+        df=pd.pandas.read_csv(self.__filepath,sep=',')
+        dropping_cols=['INTERVENTION','RAISE6SECRRP','RAISE60SECRRP','RAISE5MINRRP','RAISEREGRRP','LOWER6SECRRP','LOWER60SECRRP','LOWER5MINRRP','LOWERREGRRP','PRICE_STATUS','REGIONID']
+        df.drop(columns=dropping_cols,inplace=True)
+        filename=os.path.join(self.__datapath,'data.csv')
+        df.to_csv(filename, sep=',', index=False, header=True)
