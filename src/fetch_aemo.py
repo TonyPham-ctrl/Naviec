@@ -23,7 +23,6 @@ class NEMDataFetcher:
             self.__datapath = os.path.join(path, 'data')
             os.makedirs(self.__datapath, exist_ok=True)
         
-        self.__filepath = os.path.join(self.__datapath, 'full_data.csv')
 
     def get_file_path(self):
         return self.__datapath
@@ -76,7 +75,7 @@ class NEMDataFetcher:
 
         return os.path.join(folder, f"{table}.csv")
 
-    def fetch_and_store(self, start_time: dt.datetime, end_time: dt.datetime, table: str):
+    def fetch_and_store(self, start_time: dt.datetime, end_time: dt.datetime, table: str='DISPATCHPRICE', filename: typing.Optional[str]='full_data.csv'):
         '''
             Fetch and Store The CSV Files From NEM. 
 
@@ -89,6 +88,8 @@ class NEMDataFetcher:
 
         # dates =  self._generate_date_range(start_time, end_time)
 
+        self.__full_csv_filepath = os.path.join(self.__datapath, filename)
+
         format='%Y/%m/%d %H:%M:%S'
         start=start_time.strftime(format)
         end=end_time.strftime(format)
@@ -99,7 +100,7 @@ class NEMDataFetcher:
             return
         
         # save_path = self.__get_files_save_path(start_time, table)
-        csv.to_csv(self.__filepath, index=False)
+        csv.to_csv(self.__full_csv_filepath, index=False)
 
         
         # format="%Y/%m/%d 00:00:00"
@@ -118,10 +119,12 @@ class NEMDataFetcher:
 
         # return saved_files
     
-    def get_working_dataset(self):
+    def get_working_dataset(self, filename: typing.Optional[str]='full_data.csv'):
         # Using pandas to drop the unnecessary columns for now. Only focus on RRP, SETTLEMENTDATE. The REGIONID is SA1 by default.
-        df=pd.pandas.read_csv(self.__filepath,sep=',')
+        df=pd.pandas.read_csv(self.__full_csv_filepath,sep=',')
+
         dropping_cols=['INTERVENTION','RAISE6SECRRP','RAISE60SECRRP','RAISE5MINRRP','RAISEREGRRP','LOWER6SECRRP','LOWER60SECRRP','LOWER5MINRRP','LOWERREGRRP','PRICE_STATUS','REGIONID']
         df.drop(columns=dropping_cols,inplace=True)
-        filename=os.path.join(self.__datapath,'data.csv')
+
+        filename=os.path.join(self.__datapath, filename)
         df.to_csv(filename, sep=',', index=False, header=True)
