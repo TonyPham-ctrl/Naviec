@@ -1,0 +1,25 @@
+\documentclass{article}
+\usepackage[margin=1.5in]{geometry}
+\begin{document}
+Since each hour has $60$ minutes therefore contains $12$ 5-minute intervals, starting from minute $0$ until minute $55$. Therefore, a 
+set of interval is $H_k=\{0,5,10,\ldots,55\}$ where the interval value is $v_i$ for $i\in H_k$. Let define the hourly dispatch price as
+\begin{equation}
+    x_h=\frac{1}{12}\sum_{i\in H_k}v_i
+\end{equation}
+where $h$ is the index of the hour, not necessarily be in the 24 hour limit.
+
+However, I have a population of hours in a whole year. I want to estimate that population mean, hence
+\begin{equation}
+    \theta = \frac1N\sum_{h=1}^{N}x_h
+\end{equation}
+
+I will use stratified sampling, each stratum is block of hours in a day such as morning peak hours, working hours, evening 
+peak hours, night hours, sleep hours to capture the characteristics of the data set. Therefore, there are 5 strata ($M=5$). I want to create a sample 
+of arbitrary size $n$. So my population mean now is,
+\begin{equation}
+    \mu=\frac1N\sum_{d=1}^{M}\sum_{h=1}^{N_d}x_{dh}=\sum_{d=1}^{M}w_d\mu_d
+\end{equation}
+where $w_d=N_d/N$, $\mu_d=\frac{1}{N_d}\sum_{h=1}^{N_d}x_{dh}$. The latter summation is the weighted average of strata means.
+
+Let $n_d$ be the sampling size of each stratum, where $1\leq d\leq M$ and $n_1+n_2+\ldots+n_5=n$
+\end{document}
