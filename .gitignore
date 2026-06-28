@@ -9,3 +9,6 @@ data
 .DS_Store
 cache
 venv
+
+latex/_minted
+latex/*.gz

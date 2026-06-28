@@ -17,16 +17,19 @@ library(dplyr)
 dat$SETTLEMENTDATE <- format(as.POSIXct(dat$SETTLEMENTDATE, tz="", format("%Y-%m-%d %H:%M:%S")), format("%Y-%m-%d %H"))
 
 dat <- dat %>% group_by(SETTLEMENTDATE) %>% dplyr::summarise(Mean=mean(RRP))
+head(dat)
+theta <- mean(dat$Mean)
+theta
 
 dat$hour <- as.integer(substr(dat$SETTLEMENTDATE, 12, 13))
 
 dat$stratum <- case_when(
     dat$hour %in% morning_peak_hours ~ "morning_peak",
-    dat$hour %in% working_hours      ~ "working",
+    dat$hour %in% working_hours ~ "working",
     dat$hour %in% evening_peak_hours ~ "evening_peak",
-    dat$hour %in% night_hours        ~ "night",
-    dat$hour %in% sleep_hours        ~ "sleep",
-    TRUE                             ~ NA_character_
+    dat$hour %in% night_hours ~ "night",
+    dat$hour %in% sleep_hours ~ "sleep",
+    TRUE ~ NA_character_
 )
 
 dat$SETTLEMENTDATE <- NULL
@@ -44,15 +47,48 @@ weights <- sapply(strata, function(stratum) nrow(stratum)/N)
 # choose(703,1)*choose(1095,1)*choose(1095,1)*choose(3284,1)*choose(2555,1)
 # choose(2555,2)
 
-K <- 10000   
-S <- 2       
+
+# drawn <- lapply(strata, function(stratum) {
+    # stratum[sample(nrow(stratum), S, replace=FALSE), ]
+# })
+# 
+# mu_h_hat <- sapply(drawn, function(d) mean(d$Mean))
+# sum(weights*mu_h_hat)
+# head(mu_h_hat)
+
+K <- 264000
+S <- 100
+
+test_theta <- mean(test_strata[['evening_peak']]$Mean)
+test_theta
+total_K <- choose(nrow(test_strata[['evening_peak']]),S)
+nrow(test_strata[['evening_peak']])
+
+sample_means <- replicate(K, {
+    drawn <- lapply(test_strata, function(stratum) {
+        stratum[sample(nrow(stratum), S, replace=FALSE), ]
+    })
+    # Mean of each sample k of each stratum.
+    mu_h_hat <- unname(sapply(drawn, function(d) mean(d$Mean)))
+})
+theta_hat <- sum(sample_means*(1/total_K))
+theta_hat
+bias <- theta_hat - test_theta
+bias
+
+
+
+K <- 100
+S <- 10
+
 sample_means <- replicate(K, {
     drawn <- lapply(strata, function(stratum) {
-        stratum[sample(nrow(stratum), S), ]
+        stratum[sample(nrow(stratum), S, replace=FALSE), ]
     })
+    # Mean of each sample k of each stratum.
     mu_h_hat <- sapply(drawn, function(d) mean(d$Mean))
+
     sum(weights * mu_h_hat)
 })
-sample_means
 
-help(replicate)
+bias <- mean(sample_means)-theta

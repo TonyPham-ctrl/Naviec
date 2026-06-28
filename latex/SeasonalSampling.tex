@@ -1,5 +1,5 @@
-\documentclass{article}
-\usepackage[margin=1.5in]{geometry}
+\documentclass[11pt, a4paper]{article}
+\input{preambles.tex}
 \begin{document}
 Since each hour has $60$ minutes therefore contains $12$ 5-minute intervals, starting from minute $0$ until minute $55$. Therefore, a 
 set of interval is $H_k=\{0,5,10,\ldots,55\}$ where the interval value is $v_i$ for $i\in H_k$. Let define the hourly dispatch price as
@@ -8,7 +8,7 @@ set of interval is $H_k=\{0,5,10,\ldots,55\}$ where the interval value is $v_i$ 
 \end{equation}
 where $h$ is the index of the hour, not necessarily be in the 24 hour limit.
 
-However, I have a population of hours in a whole year. I want to estimate that population mean, hence
+However, I have a population of hours in a whole year. I want to estimate that population mean, hence the population parameter is 
 \begin{equation}
     \theta = \frac1N\sum_{h=1}^{N}x_h
 \end{equation}
@@ -19,7 +19,84 @@ of arbitrary size $n$. So my population mean now is,
 \begin{equation}
     \mu=\frac1N\sum_{d=1}^{M}\sum_{h=1}^{N_d}x_{dh}=\sum_{d=1}^{M}w_d\mu_d
 \end{equation}
-where $w_d=N_d/N$, $\mu_d=\frac{1}{N_d}\sum_{h=1}^{N_d}x_{dh}$. The latter summation is the weighted average of strata means.
 
-Let $n_d$ be the sampling size of each stratum, where $1\leq d\leq M$ and $n_1+n_2+\ldots+n_5=n$
+where $w_d=N_d/N$, $\mu_d=\frac{1}{N_d}\sum_{h=1}^{N_d}x_{dh}$. The latter summation is the weighted average of strata means $\mu_d$.
+
+\section*{Estimation}
+Let the mean of each stratum $d$ be $\hat{\mu}_d$. In stratified sampling, I choose $n_d$ units from a stratum. Let $s$ be the chosen units such that $s_1=s_2=\ldots=s_5$ which means that taking exactly same number of 
+units in each stratum. Assume that I have some arbitrary stratum $d$, $s_d$ units of choice. Therefore, let the number of samples can be taken from the stratum be $K$ then $K=\binom{N_d}{s_d}$, where $N_d$ is the 
+population of the stratum in my case the number of combination is extremely large thus rendering the simple random sampling (SRS) procedure in each stratum impractical. 
+
+Instead of choosing all $K$ samples of the stratum, I can choose $\hat{K}$ such that $\hat{K}\ll K$. Now, the expected population parameter is 
+\begin{equation}
+    \mathbb{E}(T)=\sum_{k=1}^{\hat{K}}\hat{\theta}_k\pi_k
+\end{equation}
+Since this is SRS, then each sample has the same probability of being selected of $1/K$.
+\begin{equation}
+    \begin{aligned}
+        \mathbb{E}(T)&=\sum_{k=1}^{\hat{K}}\bar{x}_{d,k}\frac{1}{K}\\
+        \mathbb{E}(T)&=\sum_{k=1}^{\hat{K}}\sum_{i\in S_{d,k}}x_i\frac{1}{Ks_d} 
+    \end{aligned}
+\end{equation}
+\paragraph{Counting} Given that each unit has a chosen probability of $s_d/N_d$. In \Rcode{R}, it is not possible to generate the first $\hat{K}$ combinations so I choose randomly by looping $\hat{K}$ times. The expected 
+number of times a unit appears is
+\begin{equation}
+    \mathbb{E}[U_i]=\hat{K}\frac{s_d}{N_d}
+\end{equation}
+I will consider two case since the appearance of units is random. Firstly,
+\begin{equation}\label{eq:BiasDerive}
+    \begin{aligned}
+        \hat{K}\frac{s_d}{N_d}\sum_{i=1}^{N_d}x_i&\geq\sum_{k=1}^{\hat{K}}\sum_{i\in S_{d,k}}x_i\\
+        \frac{\hat{K}}{K}\frac{1}{N_d}\sum_{i=1}^{N_d}x_i&\geq\frac{1}{Ks_d}\sum_{k=1}^{\hat{K}}\sum_{i\in S_{d,k}}x_i\\
+        \frac{\hat{K}}{K}\mu_d&\geq\mathbb{E}(T)\\
+        \frac{\hat{K}}{K}\mu_d-\mu_d&\geq\mathbb{E}(T)-\mu_d\\
+        \frac{\hat{K}}{K}\mu_d-\mu_d&\geq\mathrm{bias}\\
+        \frac{\hat{K}-K}{K}\mu_d&\geq\mathrm{bias}\\
+    \end{aligned}
+\end{equation}
+For the other case it is 
+\begin{equation}
+    \frac{\hat{K}-K}{K}\mu_d<\mathrm{bias}
+\end{equation}
+Through the derivation, somehow the $s_d$ is eliminated but in \cref{eq:BiasDerive}. If I make $s_d$ somehow large then the bias just be $-\mu_d$. Illustrated with the graph below.
+
+
+\begin{Rblock}
+    drawn <- lapply(strata, function(stratum) {
+        stratum[sample(nrow(stratum), S, replace=FALSE), ]
+    })
+    # Mean of each sample k of each stratum.
+    mu_h_hat <- sapply(drawn, function(d) mean(d$Mean)) #$
+\end{Rblock}
+
+In other words calculating the equation,
+\begin{equation}
+    \bar{x}_{dk}=\frac{1}{n_d}\sum_{i\in S_{dk}}x_{di}
+\end{equation}
+
+In each stratum I pick samples randomly using SRS, therefore $\bar{x}_{dk}$ is unbiased regardless of the sample size $K$. Lastly
+\begin{Rblock}
+    sum(weights*mu_h_hat)
+\end{Rblock}
+Inside the functions it is doing, $w_h\bar{x}_{dk}$, given that
+\begin{equation}
+    \hat{\theta}_k=\sum_{d=1}^{5}w_h\bar{x}_{dk}
+\end{equation}
+therefore \Rcode{sum(...)}
+
+Given that I have 
+\begin{equation}
+    \hat{\theta}_k=\bar{x}_{d,k}=\frac1s\sum_{i\in S_{d,k}}x_i
+\end{equation}
+That is the mean of of a sample of a stratum. I will focus on this only to understand the bias. So 
+\begin{equation}
+    \mathbb{E}(T)=\sum_{i=1}^{K^\prime}\hat{\theta}_k\frac{1}{K}
+\end{equation}
+where $K=\binom{N_d}{s}$, this mean that I have total of $K$ samples for a stratum $d$, and each of them has $1/K$ of being chosen. By expanding it, 
+\begin{equation}
+    \mathbb{E}(T)=\sum_{i=1}^{K^\prime}\sum_{i\in S_{d,k}}x_i\frac{1}{Ks}
+\end{equation}
+    \begin{equation}
+        \sum_{k=1}^{K^\prime} \sum_{i \in S_{d,k}}x_i\neq \sum^{N_d}_{i=1}\frac{sK^\prime}{N_d}x_i
+    \end{equation}
 \end{document}
