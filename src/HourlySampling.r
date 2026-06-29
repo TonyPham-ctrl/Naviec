@@ -74,7 +74,6 @@ results_of_each_sample <- replicate(K_hat, {
     c(mu_hat_k = x_bar_k, SE_hat_k = SE_k)
 })
 
-
 sample_means <- results_of_each_sample['mu_hat_k',]
 sample_SE <- results_of_each_sample['SE_hat_k',]
 

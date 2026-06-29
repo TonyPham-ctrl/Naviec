@@ -12,3 +12,5 @@ venv
 
 latex/_minted
 latex/*.gz
+
+src/__pycache__
