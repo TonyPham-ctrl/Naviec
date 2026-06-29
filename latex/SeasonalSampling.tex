@@ -28,17 +28,42 @@ units in each stratum. Assume that I have some arbitrary stratum $d$, $s_d$ unit
 population of the stratum in my case the number of combination is extremely large thus rendering the simple random sampling (SRS) procedure in each stratum impractical. 
 
 Instead of choosing all $K$ samples of the stratum, I can choose $\hat{K}$ such that $\hat{K}\ll K$. Now, the expected population parameter is 
-\begin{equation}
+\begin{equation}\label{eq:ExpectedPopulationParameter}
     \mathbb{E}(T)=\sum_{k=1}^{\hat{K}}\hat{\theta}_k\pi_k
 \end{equation}
-Since this is SRS, then each sample has the same probability of being selected of $1/K$.
+where $\hat{\theta}_k=\bar{x}_{d,k}$, the arithmetic mean of stratum $d$ of sample $k$. Let $S_{d,k}=\{i_1,i_2,\ldots,i_{s_d}\}$, where if $h\neq l$ then $i_h\neq i_l$ and $i_h\in\{1,2,\ldots,N_d\}$. This is a sample $k$
+of stratum $d$. I have that 
+\begin{equation}\label{eq:MeanOfStratumOfSample}
+    \bar{x}_{d,k}=\frac{1}{s_d}\sum_{i\in S_{d,k}}x_i
+\end{equation}
+To calculate bunch of $\bar{x}_{d,k}$'s for $k=1,2,\ldots,\hat{K}$ and every stratum. In \Rcode{R}, I use $\hat{\mu}_h$ via $\bar{x}_{d,k}$ (a biased estimator).
+\begin{Rblock}
+    drawn <- lapply(strata, function(stratum) {
+        stratum[sample(nrow(stratum), s_d, replace=FALSE), ]
+    })
+    # Mean of each sample k of each stratum.
+    mu_d_hat <- sapply(drawn, function(d) mean(d$Mean)) #$
+\end{Rblock}
+
+Since this is SRS, then each sample has the same probability of being selected of $1/K$. From \cref{eq:ExpectedPopulationParameter} and \cref{eq:MeanOfStratumOfSample} hence
 \begin{equation}
     \begin{aligned}
         \mathbb{E}(T)&=\sum_{k=1}^{\hat{K}}\bar{x}_{d,k}\frac{1}{K}\\
         \mathbb{E}(T)&=\sum_{k=1}^{\hat{K}}\sum_{i\in S_{d,k}}x_i\frac{1}{Ks_d} 
     \end{aligned}
 \end{equation}
-\paragraph{Counting} Given that each unit has a chosen probability of $s_d/N_d$. In \Rcode{R}, it is not possible to generate the first $\hat{K}$ combinations so I choose randomly by looping $\hat{K}$ times. The expected 
+
+Furthermore, to estimate $\theta$, I need $\hat{\mu}$, which is 
+\begin{equation}
+    \hat{\mu}=\bar{x}_k=\sum_{d=1}^{M}w_d\bar{x}_{d,k}
+\end{equation}
+Hence in \Rcode{R} it is
+\begin{Rblock}
+    sum(weights*mu_h_hat)
+\end{Rblock}
+
+\subsection*{Expected Popluation Parameter}
+Given that each unit has a chosen probability of $s_d/N_d$. In \Rcode{R}, it is not possible to generate the first $\hat{K}$ combinations so I choose randomly by looping $\hat{K}$ times. The expected 
 number of times a unit appears is
 \begin{equation}
     \mathbb{E}[U_i]=\hat{K}\frac{s_d}{N_d}
@@ -49,8 +74,6 @@ I will consider two case since the appearance of units is random. Firstly,
         \hat{K}\frac{s_d}{N_d}\sum_{i=1}^{N_d}x_i&\geq\sum_{k=1}^{\hat{K}}\sum_{i\in S_{d,k}}x_i\\
         \frac{\hat{K}}{K}\frac{1}{N_d}\sum_{i=1}^{N_d}x_i&\geq\frac{1}{Ks_d}\sum_{k=1}^{\hat{K}}\sum_{i\in S_{d,k}}x_i\\
         \frac{\hat{K}}{K}\mu_d&\geq\mathbb{E}(T)\\
-        \frac{\hat{K}}{K}\mu_d-\mu_d&\geq\mathbb{E}(T)-\mu_d\\
-        \frac{\hat{K}}{K}\mu_d-\mu_d&\geq\mathrm{bias}\\
         \frac{\hat{K}-K}{K}\mu_d&\geq\mathrm{bias}\\
     \end{aligned}
 \end{equation}
@@ -60,43 +83,19 @@ For the other case it is
 \end{equation}
 Through the derivation, somehow the $s_d$ is eliminated but in \cref{eq:BiasDerive}. If I make $s_d$ somehow large then the bias just be $-\mu_d$. Illustrated with the graph below.
 
-
+$\bar{x}_{d,k}$ remains to be a biased estimator of $\mu_d$. In addition to that, $w_d$'s are not all equal. Therefore, because of the previous two reasons, $\bar{x}_k$ is a biased estimator of $\mu$. However, by choosing
+the correct amount of $s_d,\hat{K}$, the bias can be reduced. In \Rcode{R}, I use the \Rcode{replicate(K_hat, {...})} function to repeat the sampling procedure $\hat{K}$ times and calculate the mean of the whole sample
+each for each sampling. The vector \Rcode{sample_means} contains the means of the sampling plans, that is, $\{\hat{\theta}_1,\hat{\theta}_2,\ldots,\hat{\theta}_{\hat{K}}\}$ of $\{S_1,S_2,\ldots,S_{\hat{K}}\}$ where 
+each has a uniform probability of $\pi_k=1/K$ for $k=1,2,\ldots,\hat{K}$.
 \begin{Rblock}
-    drawn <- lapply(strata, function(stratum) {
-        stratum[sample(nrow(stratum), S, replace=FALSE), ]
-    })
-    # Mean of each sample k of each stratum.
-    mu_h_hat <- sapply(drawn, function(d) mean(d$Mean)) #$
+    sample_means <- replicate(K_hat, {
+        drawn <- lapply(strata, function(stratum) {
+            stratum[sample(nrow(stratum), s_d, replace=FALSE), ]
+        })
+        # Mean of each sample k of each stratum.
+        mu_h_hat <- sapply(drawn, function(d) mean(d$Mean)) #$
+
+        sum(weights * mu_h_hat)
+    }) 
 \end{Rblock}
-
-In other words calculating the equation,
-\begin{equation}
-    \bar{x}_{dk}=\frac{1}{n_d}\sum_{i\in S_{dk}}x_{di}
-\end{equation}
-
-In each stratum I pick samples randomly using SRS, therefore $\bar{x}_{dk}$ is unbiased regardless of the sample size $K$. Lastly
-\begin{Rblock}
-    sum(weights*mu_h_hat)
-\end{Rblock}
-Inside the functions it is doing, $w_h\bar{x}_{dk}$, given that
-\begin{equation}
-    \hat{\theta}_k=\sum_{d=1}^{5}w_h\bar{x}_{dk}
-\end{equation}
-therefore \Rcode{sum(...)}
-
-Given that I have 
-\begin{equation}
-    \hat{\theta}_k=\bar{x}_{d,k}=\frac1s\sum_{i\in S_{d,k}}x_i
-\end{equation}
-That is the mean of of a sample of a stratum. I will focus on this only to understand the bias. So 
-\begin{equation}
-    \mathbb{E}(T)=\sum_{i=1}^{K^\prime}\hat{\theta}_k\frac{1}{K}
-\end{equation}
-where $K=\binom{N_d}{s}$, this mean that I have total of $K$ samples for a stratum $d$, and each of them has $1/K$ of being chosen. By expanding it, 
-\begin{equation}
-    \mathbb{E}(T)=\sum_{i=1}^{K^\prime}\sum_{i\in S_{d,k}}x_i\frac{1}{Ks}
-\end{equation}
-    \begin{equation}
-        \sum_{k=1}^{K^\prime} \sum_{i \in S_{d,k}}x_i\neq \sum^{N_d}_{i=1}\frac{sK^\prime}{N_d}x_i
-    \end{equation}
 \end{document}

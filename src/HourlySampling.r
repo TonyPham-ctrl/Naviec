@@ -37,7 +37,6 @@ dat$hour <- NULL
 strata <- split(dat, dat$stratum)
 
 length_of_stratum <- sapply(strata, function(stratum) nrow(stratum))
-length_of_stratum
 N <- sum(unlist(length_of_stratum, use.names=FALSE))
 weights <- sapply(strata, function(stratum) nrow(stratum)/N)
 
@@ -56,39 +55,35 @@ weights <- sapply(strata, function(stratum) nrow(stratum)/N)
 # sum(weights*mu_h_hat)
 # head(mu_h_hat)
 
-K <- 264000
-S <- 100
+K_hat <- 10
+s_d <- 2
+seed <- 182190  
+set.seed(seed)   
 
-test_theta <- mean(test_strata[['evening_peak']]$Mean)
-test_theta
-total_K <- choose(nrow(test_strata[['evening_peak']]),S)
-nrow(test_strata[['evening_peak']])
-
-sample_means <- replicate(K, {
-    drawn <- lapply(test_strata, function(stratum) {
-        stratum[sample(nrow(stratum), S, replace=FALSE), ]
-    })
-    # Mean of each sample k of each stratum.
-    mu_h_hat <- unname(sapply(drawn, function(d) mean(d$Mean)))
-})
-theta_hat <- sum(sample_means*(1/total_K))
-theta_hat
-bias <- theta_hat - test_theta
-bias
-
-
-
-K <- 100
-S <- 10
-
-sample_means <- replicate(K, {
+results_of_each_sample <- replicate(K_hat, {
     drawn <- lapply(strata, function(stratum) {
-        stratum[sample(nrow(stratum), S, replace=FALSE), ]
+        stratum[sample(nrow(stratum), s_d, replace=FALSE), ]
     })
-    # Mean of each sample k of each stratum.
     mu_h_hat <- sapply(drawn, function(d) mean(d$Mean))
+    variance_h <- sapply(drawn, function(d) var(d$Mean))
+    N_h <- sapply(strata, nrow)
+    f_h <- s_d / N_h
 
-    sum(weights * mu_h_hat)
+    x_bar_k <- sum(weights * mu_h_hat)
+    SE_k    <- sqrt(sum(weights^2 * variance_h * (1 - f_h) / s_d))
+    c(mu_hat_k = x_bar_k, SE_hat_k = SE_k)
 })
 
-bias <- mean(sample_means)-theta
+
+sample_means <- results_of_each_sample['mu_hat_k',]
+sample_SE <- results_of_each_sample['SE_hat_k',]
+
+total_K <- sapply(strata, function(stratum) choose(nrow(stratum),s_d))
+
+bias <- sum(results_of_each_sample[1,]*(1/total_K))-theta
+mean_SE <- mean(sample_SE)
+
+bias
+mean_SE
+
+
