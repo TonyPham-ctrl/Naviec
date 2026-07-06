@@ -1,9 +1,16 @@
+import argparse
+import datetime as dt
 import os
 import typing
-import pandas as pd
+
 import numpy as np
-from nemosis import dynamic_data_compiler, defaults, cache_compiler
-import datetime as dt
+import pandas as pd
+from nemosis import cache_compiler, defaults, dynamic_data_compiler
+
+DEFAULT_END = dt.datetime(2016, 4, 20, 0, 0, 0)
+DEFAULT_START = DEFAULT_END - dt.timedelta(days=10)
+DEFAULT_TABLE = "DISPATCHPRICE"
+
 
 class NEMDataFetcher:
     def __init__(self, path: typing.Optional[str]=None) -> None:
@@ -109,13 +116,37 @@ class NEMDataFetcher:
 
         # return saved_files
 
-time = dt.datetime(2016,4,20,0,0,0)
 
-fetcher = NEMDataFetcher()
-files = fetcher.fetch_and_store(
-    start_time = time-dt.timedelta(days=10),
-    end_time = time,
-    table = 'DISPATCHPRICE'
-)
+def run_fetch(
+    start_time: dt.datetime = DEFAULT_START,
+    end_time: dt.datetime = DEFAULT_END,
+    table: str = DEFAULT_TABLE,
+    data_dir: typing.Optional[str] = None,
+) -> None:
+    fetcher = NEMDataFetcher(path=data_dir)
+    fetcher.fetch_and_store(start_time=start_time, end_time=end_time, table=table)
 
+
+def _parse_dt(value: str) -> dt.datetime:
+    return dt.datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Fetch and store AEMO data.")
+    parser.add_argument("--start", type=_parse_dt, default=DEFAULT_START)
+    parser.add_argument("--end", type=_parse_dt, default=DEFAULT_END)
+    parser.add_argument("--table", default=DEFAULT_TABLE)
+    parser.add_argument("--data-dir", default=None)
+    args = parser.parse_args()
+
+    run_fetch(
+        start_time=args.start,
+        end_time=args.end,
+        table=args.table,
+        data_dir=args.data_dir,
+    )
+
+
+if __name__ == "__main__":
+    main()
 
