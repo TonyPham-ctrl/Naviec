@@ -7,7 +7,7 @@ import typing
 def _resolve_data_dir(data_dir: typing.Optional[str]) -> pathlib.Path:
     if data_dir is None:
         base_dir = os.path.dirname(os.path.abspath(__file__))
-        data_dir = os.path.abspath(os.path.join(base_dir, "..", "..", "data"))
+        data_dir = os.path.abspath(os.path.join(base_dir, "..", "data"))
     return pathlib.Path(data_dir)
 
 

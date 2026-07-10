@@ -7,24 +7,18 @@ import numpy as np
 import pandas as pd
 from nemosis import dynamic_data_compiler, static_table
 
-DEFAULT_END = dt.datetime(2016, 4, 20, 0, 0, 0)
-DEFAULT_START = DEFAULT_END - dt.timedelta(days=10)
-DEFAULT_TABLE = "DISPATCHPRICE"
+from constants import DEFAULT_LOOKBACK_DAYS, DEFAULT_REGION, DEFAULT_TABLE, DROPPED_FCAS_COLUMNS
+from data_ingestion.db.loader import load_dataframe
+
+DEFAULT_END = dt.datetime.now().replace(microsecond=0)
+DEFAULT_START = DEFAULT_END - dt.timedelta(days=DEFAULT_LOOKBACK_DAYS)
 
 
 class NEMDataFetcher:
     def __init__(self, path: typing.Optional[str]=None) -> None:
-        '''
-            Initialise the Data Fetcher
-
-            Args:
-                path (str | None): Absolute path to the data storage directory. If None automatically generate absolute path.
-
-            Return:
-                None
-        '''
         if path == None:
-            self.__datapath = os.path.join(os.getcwd(),'data')
+            repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            self.__datapath = os.path.join(repo_root, 'data')
             os.makedirs(self.__datapath, exist_ok=True)
         else:
             self.__datapath = os.path.join(path, 'data')
@@ -35,16 +29,6 @@ class NEMDataFetcher:
         return self.__datapath
 
     def __generate_date_range(self, start_time: dt.datetime, end_time: dt.datetime) -> np.ndarray[dt.datetime]:
-        '''
-            Generate a numpy array of dates using the given start_time and end_time
-
-            Args:
-                start_time (datetime.datetime): Starting time of the NEM data files.
-                end_time (datetime.datetime): Ending time of the NEM data files.
-
-            Returns:
-                np.ndarray[datetime.datetime]: A numpy array of datetime.datetime
-        '''
 
         inclusive_days_interval = (end_time-start_time).days + 1    # This means [start_time, end_time], not (start_time, end_time) in mathmatical notation.
         dates = np.empty(shape=inclusive_days_interval,dtype=dt.datetime)   # This create an empty (uninitialised) numpy array with the size of days in between.
@@ -69,7 +53,6 @@ class NEMDataFetcher:
             Returns:
                 str: Path to the folder of that csv files.
         '''
-        #======= Date Naming Format ========
         year = str(date.year)
         month = str(date.month).zfill(2)
         day = str(date.day).zfill(2)
@@ -100,11 +83,27 @@ class NEMDataFetcher:
         format='%Y/%m/%d %H:%M:%S'
         start=start_time.strftime(format)
         end=end_time.strftime(format)
-        csv=dynamic_data_compiler(start_time=start,end_time=end, table_name=table, raw_data_location=self.__datapath, fformat='csv', filter_cols=['REGIONID'], filter_values=(['SA1'],))
+        csv=dynamic_data_compiler(start_time=start,end_time=end, table_name=table, raw_data_location=self.__datapath, fformat='csv', filter_cols=['REGIONID'], filter_values=([DEFAULT_REGION],))
 
         if csv is None or csv.empty:
             print('Empty data fetched.')
             return
+
+        csv['SETTLEMENTDATE'] = pd.to_datetime(csv['SETTLEMENTDATE'])
+
+        loaded = load_dataframe(csv)
+        print(f'Loaded {loaded} row(s) into dispatch_prices.')
+
+        if os.path.exists(self.__full_csv_filepath):
+            existing = pd.read_csv(self.__full_csv_filepath, sep=',')
+            existing['SETTLEMENTDATE'] = pd.to_datetime(existing['SETTLEMENTDATE'])
+            csv = pd.concat([existing, csv], ignore_index=True)
+
+        csv = csv.drop_duplicates(subset=['SETTLEMENTDATE', 'REGIONID'], keep='last')
+        csv = csv.sort_values('SETTLEMENTDATE')
+
+        cutoff = csv['SETTLEMENTDATE'].max() - dt.timedelta(days=DEFAULT_LOOKBACK_DAYS)
+        csv = csv[csv['SETTLEMENTDATE'] >= cutoff]
 
         # save_path = self.__get_files_save_path(start_time, table)
         csv.to_csv(self.__full_csv_filepath, index=False)
@@ -130,7 +129,7 @@ class NEMDataFetcher:
         # Using pandas to drop the unnecessary columns for now. Only focus on RRP, SETTLEMENTDATE. The REGIONID is SA1 by default.
         df=pd.read_csv(self.__full_csv_filepath,sep=',')
 
-        dropping_cols=['INTERVENTION','RAISE6SECRRP','RAISE60SECRRP','RAISE5MINRRP','RAISEREGRRP','LOWER6SECRRP','LOWER60SECRRP','LOWER5MINRRP','LOWERREGRRP','PRICE_STATUS','REGIONID']
+        dropping_cols=DROPPED_FCAS_COLUMNS
         df.drop(columns=dropping_cols,inplace=True)
 
         filename=os.path.join(self.__datapath, filename)
