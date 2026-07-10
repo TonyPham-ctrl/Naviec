@@ -15,15 +15,6 @@ DEFAULT_START = DEFAULT_END - dt.timedelta(days=DEFAULT_LOOKBACK_DAYS)
 
 class NEMDataFetcher:
     def __init__(self, path: typing.Optional[str]=None) -> None:
-        '''
-            Initialise the Data Fetcher
-
-            Args:
-                path (str | None): Absolute path to the data storage directory. If None automatically generate absolute path.
-
-            Return:
-                None
-        '''
         if path == None:
             self.__datapath = os.path.join(os.getcwd(),'data')
             os.makedirs(self.__datapath, exist_ok=True)
@@ -36,16 +27,6 @@ class NEMDataFetcher:
         return self.__datapath
 
     def __generate_date_range(self, start_time: dt.datetime, end_time: dt.datetime) -> np.ndarray[dt.datetime]:
-        '''
-            Generate a numpy array of dates using the given start_time and end_time
-
-            Args:
-                start_time (datetime.datetime): Starting time of the NEM data files.
-                end_time (datetime.datetime): Ending time of the NEM data files.
-
-            Returns:
-                np.ndarray[datetime.datetime]: A numpy array of datetime.datetime
-        '''
 
         inclusive_days_interval = (end_time-start_time).days + 1    # This means [start_time, end_time], not (start_time, end_time) in mathmatical notation.
         dates = np.empty(shape=inclusive_days_interval,dtype=dt.datetime)   # This create an empty (uninitialised) numpy array with the size of days in between.
@@ -70,7 +51,6 @@ class NEMDataFetcher:
             Returns:
                 str: Path to the folder of that csv files.
         '''
-        #======= Date Naming Format ========
         year = str(date.year)
         month = str(date.month).zfill(2)
         day = str(date.day).zfill(2)
@@ -106,6 +86,19 @@ class NEMDataFetcher:
         if csv is None or csv.empty:
             print('Empty data fetched.')
             return
+
+        csv['SETTLEMENTDATE'] = pd.to_datetime(csv['SETTLEMENTDATE'])
+
+        if os.path.exists(self.__full_csv_filepath):
+            existing = pd.read_csv(self.__full_csv_filepath, sep=',')
+            existing['SETTLEMENTDATE'] = pd.to_datetime(existing['SETTLEMENTDATE'])
+            csv = pd.concat([existing, csv], ignore_index=True)
+
+        csv = csv.drop_duplicates(subset=['SETTLEMENTDATE', 'REGIONID'], keep='last')
+        csv = csv.sort_values('SETTLEMENTDATE')
+
+        cutoff = csv['SETTLEMENTDATE'].max() - dt.timedelta(days=DEFAULT_LOOKBACK_DAYS)
+        csv = csv[csv['SETTLEMENTDATE'] >= cutoff]
 
         # save_path = self.__get_files_save_path(start_time, table)
         csv.to_csv(self.__full_csv_filepath, index=False)
