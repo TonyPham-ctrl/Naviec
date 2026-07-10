@@ -17,7 +17,8 @@ DEFAULT_START = DEFAULT_END - dt.timedelta(days=DEFAULT_LOOKBACK_DAYS)
 class NEMDataFetcher:
     def __init__(self, path: typing.Optional[str]=None) -> None:
         if path == None:
-            self.__datapath = os.path.join(os.getcwd(),'data')
+            repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            self.__datapath = os.path.join(repo_root, 'data')
             os.makedirs(self.__datapath, exist_ok=True)
         else:
             self.__datapath = os.path.join(path, 'data')
