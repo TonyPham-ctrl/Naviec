@@ -8,6 +8,7 @@ import pandas as pd
 from nemosis import dynamic_data_compiler, static_table
 
 from constants import DEFAULT_LOOKBACK_DAYS, DEFAULT_REGION, DEFAULT_TABLE, DROPPED_FCAS_COLUMNS
+from data_ingestion.db.loader import load_dataframe
 
 DEFAULT_END = dt.datetime.now().replace(microsecond=0)
 DEFAULT_START = DEFAULT_END - dt.timedelta(days=DEFAULT_LOOKBACK_DAYS)
@@ -88,6 +89,9 @@ class NEMDataFetcher:
             return
 
         csv['SETTLEMENTDATE'] = pd.to_datetime(csv['SETTLEMENTDATE'])
+
+        loaded = load_dataframe(csv)
+        print(f'Loaded {loaded} row(s) into dispatch_prices.')
 
         if os.path.exists(self.__full_csv_filepath):
             existing = pd.read_csv(self.__full_csv_filepath, sep=',')
