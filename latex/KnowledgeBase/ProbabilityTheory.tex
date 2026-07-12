@@ -1,0 +1,230 @@
+\chapter{Probability Theory}
+% --------------------------------------------------- %
+% =================== New Section =================== %
+% --------------------------------------------------- %
+\section{Definitions of Probability}
+Firstly, \emph{event} is defined as something that happens or it's seen as a result of something. For example, people around the world recieving EMJD's scholarship are considered events. So then, the probability of such events can be the ratio 
+of the frequency of all event and the frequency of the opportunities for the event to occur. This means that all people that recieved the scholarship as a ratio of all people that submitted for the scholarship of that period. 
+
+The possible opportunities for an event to occur is a \emph{population of units} and the events can be seen as the population units with a specific characteristic. The probability for an event $A$ for a finite population can be given by
+\begin{equation}\label{eq:ProbabilityTheory1}
+    P(A)=\frac{N_A}{N}
+\end{equation}
+where $N_A$ is the number of units with characteristic $A$ and $N$ the size of the population.
+
+The equation \cref{eq:ProbabilityTheory1} is only correct only if  each opportunity for the event to occur is as likely to produce the event as any other opportunity. But realistically, it's not the case, to receive a scholarship a people
+with higher academic achievment would have higher chance those having worse academic peformance. However, the population of units can be divided into smaller subset, but this would create some very small subset and result in probability of 
+either 1 or 0. Moreover, this is only for a finite population, but rolling a die until getting a 6 can be an infinite long sequence of actions.
+
+Thus another better approach is getting the probability in a more theoretical way by having a proportion of the occurence of an event obtained from infinitely many repeated and identical trials or experiments under similar conditions. For example,
+let $A$ be the event that the die show 1. The $P(A)$ can be \emph{approximated} by 
+\begin{equation}
+    P(A)=\frac{n_A}{n}
+\end{equation}
+where $n_A$ is the number of throws that results in 1, $n$ is the total number of throws. When the number of indentical trials $n$ is increased $n_A/n$ converges to $p$ which would be $1/6$ if a die is fair. Therefore, an alternative definition 
+is 
+\begin{equation}\label{eq:ProbabilityTheory2}
+    P(A)=\lim_{n\to\infty}\frac{n_A}{n}=p
+\end{equation}
+Clearly, this definition is only appropriate when repeated and identical trials can be conducted under almost similar conditions (e.g., gaming and gambling). Thus, \cref{eq:ProbabilityTheory2} is more conceptual for real situations, since it is 
+impossible to conduct infinitely many or even many of these trials in practice.
+
+% --------------------------------------------------- %
+% =================== New Section =================== %
+% --------------------------------------------------- %
+\section{Probability Axioms}
+\begin{definitionbox}
+    The complement of $A$ is $A^c$. The occurence of two events $A$ and $B$ at the same time is $A\cap B$, that is, \emph{joint} or \emph{mutual} event. The event of either $A$ or $B$ is $A\cup B$. The probability of no event must be $0$. Not having
+    event is $\varnothing$ hence $P(\varnothing)=0$. A two \emph{mutually exclusive} events are $A\cap B=\varnothing$ hence $P(A\cap B=\varnothing)=0$.
+
+    The probability that event $A$ occur is one minus the probability that event $A$ doesn't occur. This is built upon the assumption that either $A$ or $A^c$ occur, that is, $P(A\cup A^c)=1$. Overall, $P(A)=1-P(A^c)$.
+
+    Two events are independent iff $P(A\cap B)=P(A)P(B)$, and it's denoted $A\bot B$. Note that any event with no-event is independent. If two events are positive and mutually exclusive then it mustn't be independent.
+\end{definitionbox}
+\paragraph{Calculation Rules}
+Using the axioms, some calculations can be derived.
+\begin{enumerate}
+    \item If $A\bot B$ then $A\bot B^c$, $A^c\bot B$, and $A^c\bot B^c$.
+    \item $P(A\cup B)=P(A)+P(B)-P(A\cap B)$.
+    \item The law of total probability: $P(A)=P(A\cap B)+P(A\cap B^c)$.
+\end{enumerate}
+
+% --------------------------------------------------- %
+% =================== New Section =================== %
+% --------------------------------------------------- %
+\section{Conditional Probability}
+In some situations, probability is about a subset of the whole population. Say what is the probability of congential anomaly given that the baby is a boy. This is different from the joint events probability, because now the probability of the space
+of interest excluded type girl. Let event $A$ represents a congenital anomaly and $B$ represents the event of a male newborn baby. The conditional probability is denoted by $P(A\mid B)$ given by
+\begin{equation}\label{eq:ProbabilityTheory3}
+    P(A\mid B)=\frac{P(A\cap B)}{P(B)},\quad\text{only if } P(B)>0
+\end{equation}
+Dealing with joint events $A\cap B$, it can be summarised by a contingency table.
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.5}
+    \begin{tabular}{l|ll|l}
+        \hline
+                & $A$                                                        & $A^c$                                                             &           \\
+        \hline
+        $B$     & $P(A \cap B) = P(A|B)\,P(B)$                        & $P(A^c \cap B) = P(A^c|B)\,P(B)$                           & $P(B)$  \\
+        \hline
+        $B^c$   & $P(A \cap B^c) = P(A|B^c)\,P(B^c)$                  & $P(A^c \cap B^c) = P(A^c|B^c)\,P(B^c)$                     & $P(B^c)$\\
+        \hline
+                & $P(A)$                                                   & $P(A^c)$                                                        & $1$       \\
+        \hline
+    \end{tabular}
+    \caption{The $2\times 2$ contingency table.}
+    \label{tab:2by2ContingencyTable}
+\end{table}
+For each, the two probabilities of column $A$ and $A^c$ add up to $P(B)$ of the event of that row, because
+\begin{equation}
+    P(A\mid B)+P(A^c\mid B)=1
+\end{equation}
+
+% --------------------------------------------------- %
+% =================== New Section =================== %
+% --------------------------------------------------- %
+\section{Measures of Risk}
+Conditional probabilities also play a dominant role in the investigation of \emph{associations} between events. Two events or variables are considered associated when they are not independent. For example, probability of congential anomalies maybe 
+different given the gender of either boy or girl. If independence is not the case, a comparison of two conditional probabilities can be used to quantify the strength of the association. Different \emph{association measures} or \emph{measures of risk} 
+exist for this purpose, such as \emph{risk difference}, \emph{relative risk}, and \emph{odds ratio}. Firstly to see what is an \emph{outcome} and what is an \emph{explanatory variable}, use $D$ to denote the event of interest (outcome, results, and
+disease). $E$ to denote the event that may affect the outcome (risk factor, explanatory event, exposure). For example, lung cancer $D$, with smoking ($E$) or not smoking ($E^c$).
+
+\subsection{Risk Difference}
+The risk difference or excess risk is an absolute measure of risk
+\begin{equation}\label{eq:RiskDifference}
+    \mathrm{ER}=P(D\mid E)-P(D\mid E^c)
+\end{equation}
+and $\mathrm{ER}\in[-1,1]$. If $\mathrm{ER}>0$, there is a greater risk of the outcome when exposed than when unexposed. If $\mathrm{ER}<0$, the exposure is a protective factor for the outcome. If $\mathrm{ER}=0$, the outcome is independent of 
+the exposure. Intuitively, the $\mathrm{ER}$ measures how much $E$ or $E^c$ protect the population from the the event $D$. For example, $D$ is the disease and $E$ is getting vaccinated. Let $P(D\mid E)=n$ and $P(D\mid E^c)=m$, then if 
+$\mathrm{ER}<0$ this means that getting vaccinated protect the from getting the disease.
+
+\subsection{Relative Risk}
+The relative risk would compare the two conditional probabilities $P(D\mid E)$ and $P(D\mid E^c)$ by taking the ratio. 
+\begin{equation}\label{eq:RelativeRisk}
+    \mathrm{RR}=\frac{P(D\mid E)}{P(D\mid E^c)}
+\end{equation}
+If $\mathrm{RR}>1$, the exposed group has a higher probability of the outcome than the unexposed one. If $\mathrm{RR}=1$, the outcome and exposure are independent. If $\mathrm{RR}<1$, the unexposed group has a higher probability of the outcome.
+
+\subsection{Odds Ratio}
+The odds ratio compares the odds for the exposed group with the odds for the unexposed group. The odds is a measure of how likely the outcome occurs with respect to not observing this outcome. Mathematically, it is 
+\begin{equation}\label{eq:OddsEquation}
+    O=\frac{p}{1-p}
+\end{equation}
+Therefore, the odd of exposed group is $P(D\mid E)/(1-P(D\mid E))$, the odds of unexposed group $P(D\mid E^c)/(1-P(D\mid E^c))$. The odd ratio is given by
+\begin{equation}\label{eq:OddRatio}
+    \mathrm{OR}=\frac{O_E}{O_{E^c}}=\frac{P(D\mid E)\big(1-P(D\mid E^c)\big)}{P(D\mid E^c)\big(1-P(D\mid E)\big)}=\frac{P(D^c\mid E^c)}{P(D^c\mid E)}\times\mathrm{RR}
+\end{equation}
+If $\mathrm{OR}>1$, the exposed group has a higher probability of outcome. If $\mathrm{OR}=1$, the outcome is independent of the exposure. If $\mathrm{OR}<1$, the unexposed group has a higher probability of the outcome.
+
+Note that the odds ratio and relative risk are always ordered, that is, either $1<\mathrm{RR}<\mathrm{OR}$ or $\mathrm{OR}<\mathrm{RR}<1$.
+\begin{proofbox}
+    If $\mathrm{RR}>1$, $P(D\mid E)>P(D\mid E^c)$. Since $P(D^c\mid E)=1-P(D\mid E)$, and $P(D^c\mid E^c)=1-P(D\mid E^c)$, thus $P(D^c\mid E)<P(D^c\mid E^c)$. Via \cref{eq:OddRatio}, then $\mathrm{OR}>\mathrm{RR}$.
+\end{proofbox}
+
+\subsection{Example}
+Please check the p.~92 for the example. I have the count contigency table as the following,
+\begin{table}[H]
+    \centering
+    \caption{2 $\times$ 2 contingency table for Dupuytren disease and gender (counts)}
+    \label{tab:DupuytrenDiseaseExampleCountTable}
+    \begin{tabular}{l|cc|c}
+        \hline
+        \multirow{2}{*}{Exposure} & \multicolumn{2}{c|}{Disease outcome} & \multirow{2}{*}{Total} \\
+        \cline{2-3}
+        & Dupuytren ($D$) & No Dupuytren ($D^c$) & \\
+        \hline\hline
+        Male ($E$)   & $92$  & $256$ & $348$ \\
+        Female ($E^c$) & $77$  & $338$ & $415$ \\
+        \hline
+        Total & $169$ & $594$ & $763$ \\
+        \hline
+    \end{tabular}
+\end{table}
+Since the sample size $n=763$. I can utilise the table to easily calculate the probability as the following
+\begin{table}[H]
+    \centering
+    \caption{2 $\times$ 2 contingency table for Dupuytren disease and gender}
+    \label{tab:DupuytrenDiseaseExampleProbabilityTable}
+    \begin{tabular}{l|cc|c}
+        \hline
+        \multirow{2}{*}{Exposure} & \multicolumn{2}{c|}{Disease outcome} & \multirow{2}{*}{Total} \\
+        \cline{2-3}
+        & Dupuytren ($D$) & No Dupuytren ($D^c$) & \\
+        \hline\hline
+        Male ($E$)   & $92/763 = 0.1206$  & $256/763 = 0.3355$ & $348/763 = 0.4561$ \\
+        Female ($E^c$) & $77/763 = 0.1009$  & $338/763 = 0.4430$ & $415/763 = 0.5439$ \\
+        \hline
+        Total & $169/763 = 0.2215$ & $594/763 = 0.7785$ & $1$ \\
+        \hline
+    \end{tabular}
+\end{table}
+
+% --------------------------------------------------- %
+% =================== New Section =================== %
+% --------------------------------------------------- %
+\section{Sampling from Populations: Different Study Designs}
+The odd ratio is more complex and widely used than the relative risk. An important reason is because $\mathrm{OR}$ is symmetric in exposure $E$ and outcome $D$, that is, although exchanging $E$ and $D$ position regarding the conditional 
+probability, the $\mathrm{OR}$ is invariant. However, relative risk changes and so does $\mathrm{ER}$. The symmetry of the odds ratio makes it possible to investigate the association between $D$ and $E$ irrespective of the way that the sample from
+the population was collected. There are particular ways to select sample from population in medical research: population-based (cross-sectional), exposure-based (cohort study), and disease-based (case-control study).
+
+In cross-sectional study, firstly, all the counts will be filled in table as the enumeration of the sample goes, then calculate the probabilities later. For the cohort study and case-control study, the count of exposure and outcome is consecutively known therefore those values are filled before the 
+sampling procedure occur. Then, probabilities are calculated as usual.
+
+\subsection{Cross-sectional Study}
+In a cross-sectional study, a SRS of size $n$ is taken from the population. Then, for each unit in the sample, note that only a sample, the count of exposure $E$ and outcome $D$ is recorded. Those records will be summarised into 4 cells comprising
+$(E,D), (E,D^c), (E^c,D),(E^c,D^c)$. For the instance of a contingency table,
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l|cc|c}
+        \hline
+        \multirow{2}{*}{Exposure} & \multicolumn{2}{c|}{Disease outcome} & \multirow{2}{*}{Total} \\
+        \cline{2-3}
+        & Dupuytren ($D$) & No Dupuytren ($D^c$) & \\
+        \hline\hline
+        Male ($E$)   & $\ldots$  & $\ldots$ & $P(E)$ \\
+        Female ($E^c$)   & $\ldots$  & $\ldots$ & $P(E^c)$ \\
+        \hline
+        Total & $P(D)$ & $P(D^c)$ & $1$ \\
+        \hline
+    \end{tabular}
+    \caption{Contingency Table Template}
+    \label{tab:CrossSectionalStudyTable}
+\end{table}
+since it is using SRS from a population, the probabilities of $P(E),P(E^c),P(D)$, and $P(D^c)$ are unknown.
+
+
+The estimation of \emph{population proportion} is unbiased, since SRS is used. For example,
+\begin{quote}
+    Let a binary variable be $z_i=1_{E_i=1\wedge D_i=1}(x_i)$, where $x_i$ is the observed values of unit $i$. The probability $\hat{P}(E\cap D)$ would the sample average of the binary variable, moreover, an unbiased estimate of the population 
+    proportion $P(E\cap D)$. Given that 
+    \begin{equation*}
+        \hat{\eta}_k=\sum_{i\in S_k}\frac{z_i}{n}=\hat{P}(E\cap D)
+    \end{equation*}
+\end{quote}
+From \cref{tab:2by2ContingencyTable}, all the other probabilities of each cell would be similar. For each of the probability in the table \cref{tab:2by2ContingencyTable}, MSE can be evaluate the those since they are simply sample mean of a 
+binary variable. Since the $2\times 2$ contingency table with sample data provides proper estimates of the population proportions, the measures of risk that would use these estimates from the sampled contingency table are estimates of the 
+population measures of risk. 
+
+\subsection{Cohort Study}
+Cohort study uses the mechanism of stratified sampling. Each of the exposed and unexposed population is collected by performing SRS. Therefore, via \cref{tab:CrossSectionalStudyTable}, the probabilities of $P(E),P(E^c)$ are known. This means, that the count of either $P(E)$ or $P(E^c)$ has been 
+preselected before sampling and are fixed in the sample.
+
+For example, the congential anomalies with cohort study. Let $D$ be having the anomaly and $E$ for a boy. By selecting, 500 boys and 1000 girls. The probabilities in the contingency table is no longer estimating the one of the population. 
+However, it gives a focus study on either exposed or unexposed group. Say, the $P(E)\approx0$  which means that the exposure is rare in the population, but it's known that $P(D\mid E)=1$, that means when something is exposed it will have the 
+outcome. So, in the population, $P(D\cap E)\approx0$ which is trivial. But in our sample, since we can predefine the size of the two groups, we can get $P(D\cap E)_{\mathrm{sample}}=n\gg 0$ to be some non-trivial number.
+
+The joint probabilities in the contingency can't estimate the ones in the population. But, those risk measure can estimate the population's risk. The reason is that these measures use the conditional probabilities only, where conditioning is 
+done on the exposure. The $P(D\mid E)$ and $P(D\mid E^c)$ in the sample do represent the conditional population probabilities.
+
+\subsection{Case-Control Study}
+Case-control study focus on the outcome group. It use the same mechanism from cohort study, but now the strate being the groups of outcome. The probabilities $P(D)$ and $P(D^c)$ are preselected before sampling. Similar to cohort study, the the probabilities from the contingency table cannot estimate 
+the population probabilities. 
+
+The odd ratio can still be properly determined.
+
+
+% --------------------------------------------------- %
+% =================== New Section =================== %
+% --------------------------------------------------- %
+\section{Simpson's Paradox}

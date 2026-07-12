@@ -1,0 +1,391 @@
+\chapter{Introduction to R for Statistics}
+\section{Basic Syntax}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{c | c}
+        \Rcode{data <- "data/"} & Initialisation of a string object\\
+        \hline\\
+        \Rcode{getcw()} & Function for getting the current working directory\\
+        \hline\\
+        \Rcode{setcw(dir)} & Function for changing the current working directory to \Rcode{dir}\\
+        \hline\\
+        \Rcode{paste(path, file, sep="")} & Combine every string into a filepath with no seperation
+    \end{tabular}
+\end{table}
+\begin{Rblock}
+    face_data <- read.csv("data-files/face-data.csv", sep=",", header=TRUE, dec=".", stringsAsFactors = TRUE)
+\end{Rblock}
+    \Rcode{face_data} is a \Rcode{data.frame} object in R, \Rcode{read.csv()} is a function that read a \texttt{.csv} file and return a \Rcode{data.frame}. \Rcode{stringsAsFactors} is just to make the string values 
+    to be treated as categories, for example if there are:
+    \begin{Rblock}
+        "Junior", "Sophomore", "Senior" 
+    \end{Rblock}
+    Then there is 3 categories, for instance, for a column of \Rcode{Undergrad_level} whose value per row is either of those. \Rcode{sep=","} is just the seperator between column is the comma, \Rcode{header=TRUE} means first 
+    line contains variable names (headers). The \Rcode{dec="."} means that the starting decimal of numbers is behind ``\,.\,''.
+\begin{table}[H]
+    \centering
+    \begin{tabular}{c | p{10cm}}
+        \Rcode{head(data)} & If not specify number of line it will print the first 6 lines and the headlines\\
+        \hline\\
+        \Rcode{tail(data, 10L)} & Print the last \Rcode{10L} lines\\
+        \hline\\
+        \Rcode{summary(data)} & Provide a description of summary of statistic of the data.\\
+        \hline\\
+        \Rcode{summary(face_data$rating)} & Using the \Rcode{$} to specify which headline column to use.\\
+        \hline\\
+        \Rcode{summary(as.factor(face_data\$rating))} & \Rcode{as.factor} is used for change the numerical quantity to categories.\\
+        \hline\\
+        \Rcode{dim(data)} & This is for getting the dimension of the data frame.
+    \end{tabular}
+\end{table}
+\section{Matrix, Vector and Scalar}
+In R there are many objects type firstly 
+\begin{Rblock}
+    id <- 10
+\end{Rblock}
+An object called \Rcode{id} as a variable valued 10. As of now, the \Rcode{read.csv()} function return a \Rcode{data.frame} which is en extension of another object called \emph{matrix}, that is, a collection of numbers ordered 
+by rows and columns created by \Rcode{matrix()} function.  Therefore, \Rcode{data.frame} is a similar object as matrix but can contain multiple data type such as both strings and numercial values.
+
+To create a matrix,
+\begin{Rblock}
+    M <- matrix(c(1:9), nrow=3)
+\end{Rblock}
+To index the matrix,
+\begin{Rblock}
+    M[i,j]  # Row and column addressing
+    M[i,]   # Row slicing
+    M[,j]   # Column slicing
+\end{Rblock}
+
+Either each row or column of a matrix is a \emph{vector}, always used by R under the hood, that is, there is always a \Rcode{[1]} in front of the printed value. Each single entry of the vector is a \emph{scalar}.
+The function \Rcode{c()} can be used to create vector, for example, \Rcode{c(1:9)} or \Rcode{1:9} would suffice to create a vector. 
+
+To concatenate a vector,
+\begin{Rblock}
+    id <- 10
+    id <- c(id, 11)
+\end{Rblock}
+
+To index the \Rcode{data.frame}, it inherits the indexing mechanism from matrix with the addition of
+\begin{Rblock}
+    df$<wanted_column>[i]
+    df$<wanted_column>[i:j]
+    df$<wanted_column>[df$<filter_column><condition>]. 
+    # For example
+    face_data$gender[face_data$rating>95]
+\end{Rblock}
+
+\section{Measurement Levels}
+\begin{enumerate}
+    \item \emph{Nominal}: Nominal data makes a distinction between groups (or sometimes even individuals), but there is no logical order to these groups. For example, in voting, the voters are Democrats or Republicans but there 
+    is no measurement between voters of how much better, how much smarter. In R, nominal data is often encoded as \Rcode{factor} or forced by \Rcode{as.factor()} which are then a \emph{variable} recall that it is the 
+    \emph{column} of the \Rcode{data.frame}. The values that the variable can take are stored separately by R and are referred to as the different \emph{levels} of the factor.
+    \item \emph{Ordinal}: Ordinal data makes distinction between groups or individuals but now imposes an order. For example, Gold medal, Silver medal, and Bronze medal in a contest. 
+    \item \emph{Interval}: Inteval data distinguishes group by imposing an order, and measuring the difference in some unit. For example, the HD students scores 95, the D best scores 90, and the C scores 70. 
+    The order is rendered by the difference of scores between students. The interval is the score, for example, $[91,95]$ are the ``interval'' for HD students. Since there is not starting point, in other words, an initial
+    ``0'' so I cannot say that HD student is $91/70$ times better than the C students.
+    \item \emph{Ratio}: Ratio data contain all the attributes of Interval data but have a clear reference point or ``0''. For example, if the lowest score is 0 then measuring from the lowest to highest we know that the ratio 
+    between the smartest and worst is $95/70\approx1.35$.
+\end{enumerate}
+Each higher measurement level contain as much information as the lower and more. Therefore, the higher data type can be summarise into the lower level data type. \emph{Nominal and Ordinal} data are often called
+\emph{categorical data}, while \emph{Interval and Ratio} are often called \emph{numercial data} comprising \emph{continuous and discrete} data.
+
+\section{Outliers and Unrealistic Values}
+Sometimes invalid data appear and it need to be removed for example the invalid \Rcode{""} inside the gender column. I can remove the rows of of data which has the invalid gender by the code,
+\begin{Rblock}
+    face_data <- face_data[face_data$gender == "Female" | face_data$gender == "Male", ] 
+\end{Rblock}
+Note that the code is indexing by row splicing given either \Rcode{Male} or \Rcode{Female}. After the removal of the rows containing the empty value, R still consider empty value as a possible \emph{level} of the 
+factor of gender, to drop this level explicitly,
+\begin{Rblock}
+    face_data$gender <- droplevels(face_data$gender) 
+\end{Rblock}
+
+In statistics, there are \emph{plausible} and \emph{implausible} outliers, that is, a 600-year-old person is implausible but a 500kg person is plausible. To deal with implausible outliers, for simplicity of now, there are
+\begin{enumerate}
+    \item Ignoring them
+    \item Removing them
+    \item Substituting them using statistical method (Advanced)
+\end{enumerate}
+Removing implausible outliers is a common practice but should it be prohibited for plausible outliers. 
+
+For missing values either those are ignored or removed, or filled with value created by prediction model called imputation. Note that
+\begin{quote}
+    Researchers also like to use special values to indicate missing data, like 88, 888, 99, and 999. These values should be used only when they represent implausible values for the variable. Thus 99 for a missing age
+is not recommended, while 999 would be proper value for a missing age. 
+\end{quote}
+
+\section{Describing Data}
+\subsection{Frequency}
+Nominal and ordinal data are often described using frequency tables. In the frequency counting there are frequency of occurence, cumulative frequency, relative frequency, and relative cumulative frequency.
+\begin{definitionbox}
+    Given a set of number (as indication of each level), that is, $\{x_1, x_2,\ldots,x_n\}$ where $n$ is the last level. For example, $x_1=1$ is ages between 18 to 24. The frequency for each $x_i$ is $f_i$ for 
+$i=1,2,\ldots,n$. The cumulative frequency for $x_j$ is,
+    \begin{equation*}
+        \sum_{k=1}^{j}f_k 
+    \end{equation*}
+The relative frequency of $x_j$ is,
+    \begin{equation*}
+        \frac{f_j}{\sum_{k=1}^{n}f_k}
+    \end{equation*}
+The cummulative relative frequency is,
+    \begin{equation*}
+        \frac{\sum_{k=1}^{j}f_k}{\sum_{m=1}^{n}f_m} 
+    \end{equation*}
+\end{definitionbox}
+\Rcode{tranform(data,...)} function in R is used to transform the data, the first argument is the data to be transformed. In the next argument position, those are new columns to be added, that is, variable name and operation to 
+assign value to the variable. The \Rcode{table()} function will creat a table of categories and its frequency count. As of now, the table has two objects which are the category and the \Rcode{Freq} used in the 
+\Rcode{transform()}. \Rcode{prop.table} or \Rcode{proportions()} give a percent of each count divided by the total, that is, $f_i/\sum^{n}f$, the relative frequency. For example, to create table data that has 
+frequency count, cummulative frequency, and relative frequency.
+\begin{Rblock}
+    t1 <- table(face_data$age) #$
+    t2 <- transform(t1, cumulative = cumsum(Freq), relative = prop.table(Freq))
+\end{Rblock}
+
+\label{sec:chapter1/discretising}
+Frequencies are often uninformative for interval and ratio. If there are numerous categories, each category will have few counts, for instance, count of 1, resolved by \emph{discretising} or, in other words, 
+\emph{binning} which ``effectively discards some of the information in the data''. To discretising the variable,
+\begin{Rblock}
+    bins <- <an_integer> 
+
+    # As of now, the two rating_binned seems to be identical.
+    rating_binned_factored <- factor(cut(face_data$rating, breaks=bins))  
+    rating_binned <- cut(face_data$rating, breaks=bins) 
+
+    t1 <- table(rating_binned)
+    t2 <- transform(t1, cumulative = cumsum(Freq), relative = proportions(Freq))
+\end{Rblock}
+\begin{minted}{text}
+    rating_binned Freq cumulative relative
+    1 (0.901,20.8] 381 381 0.1054234
+    2 (20.8,40.6] 513 894 0.1419480
+    3 (40.6,60.4] 821 1715 0.2271721
+    4 (60.4,80.2] 1214 2929 0.3359159
+    5 (80.2,100] 685 3614 0.1895407
+\end{minted}
+\subsection{Central Tendency}
+Each numerical variable exhibits a ``central value'' or ``middle value'' referred to as the location of the data. Some prerequisites of R,
+\begin{enumerate}
+    \item \Rcode{unique()}: returns a vector of all unique values.
+    \item \Rcode{which(<logical_object>)}: returns indices of the logical object.
+    \item \Rcode{which.max(<object>)}: return the index of the the first largest value of the object.
+    \item \Rcode{tabulate()}: return a table which uses the object's values as positions of the table while the second column is about the object's frequency of occurence.
+    \item \Rcode{match()}: ``return vector of the positions of first matches of its first argument in its second''.
+\end{enumerate}
+\paragraph{Arithmetic Mean}
+    Arithmetic mean, $\bar{x}$, ``is a sample mean of a variable'' affected by extreme outliers because such mean weighs every value equally given by the formula,
+    \begin{equation}
+        \bar{x}=\frac{1}{n}\sum_{i=1}^{n} x_i
+    \end{equation}
+    where $n$ is the total samples, $x_i$ is the value comprised by the variable. Use \Rcode{mean()}.
+\paragraph{Mode}
+    Mode is the most frequently occuring value of a variable and said to have multiple modes in a variable. In R,
+    \begin{Rblock}
+        get_mode <- function(v){
+            uniqv <- unique(v)
+            uniqv[which.max(tabulate(match(v, uniqv)))]
+        }
+        get_mode(face_data$rating)  #$
+    \end{Rblock}
+\paragraph{Median}
+    Being not necessarily in the data, median divides the \emph{ordered data} in two equal parts, that is, $50\%$ less than the median and $50\%$ otherwise. When $n$, amount of data, is odd, median is the middle value.
+    When $n$ is even, median is the \emph{arithmetic mean} two middle values. In practice, sort the data first then find the median. Use \Rcode{median()} in R.
+\paragraph{Quartiles, deciles, percentiles, quantiles}
+    Being not necessarily in the data, QDCQ of an \emph{ordered data} are represented by \emph{cut-off} values at certain $i\%$ where $0\%$ is the minimum value, and $100\%$ is the maximum. More formally,
+    \begin{quote}
+        A \emph{quantile} $x_q$, where $q\in[0,1]$, divides the data in two parts, that is, $q\cdot100\%$ of data is below $x_q$, and $(1-q)\cdot100\%$ of data is otherwise. 
+    \end{quote}
+    \begin{enumerate}
+        \item Quartile: $q\in\{0.25,0.5,0.75\}$ consecutively referring to first, second, and so on quartile. The second quartile is a median. Note that $0\%$ and $100\%$ are not included.
+        \item Decile: $q\in\{0.1,0.2,\ldots,0.9\}$
+        \item Percentile: $q\in\{0.01,0.02,\ldots,0.99\}$
+    \end{enumerate}
+    ``Thus quartiles and deciles are also percentiles.'' Use \Rcode{quantile()} in R.
+
+    The quantile's values vary depending on the our interpolation of \emph{distance between two values}. Practically, map any data onto the $[0,1]$ interval (such action is called \emph{normalisation}?, I assume).
+    Generically, given by,
+    \begin{equation}
+        q=\frac{i}{n+1}
+    \end{equation}
+    where $i$ is the $i^{th}$-position value, $n$ is the amount of data, $q\in[0,1]$.
+    However, the default setting in R,
+    \begin{equation}
+        q=\frac{i-1}{n-1}
+    \end{equation}
+    For instance using the generic method with the given the sorted data set $\{2,4,5,6\}$, I have that $q_2=1/5$ and $q_4=2/5$. For the $0.25$ quartile, it should be positioned at $q=0.25$ being the value $2.5$ which is 
+    the first quartile. However, if use the R's method, the second quartile will be $3.5$. Note that \Rcode{quantile(data, type=<type_of_interpolation>)}.
+\subsection{Dispersion, Skewness, and Kurtosis}
+    Dispersion indicates distance from the centre location or each other while skewness and kurtosis ``are measures describing the shape of the frequency plot''. Note that throughout those operations, there emerges 
+    $x_i-\bar{x}$ which is trying to quantifies the distance of data from the mean. Noticing such with an understanding helps to discover a glimpse into the variance, std, the skewness and kurtosis, etc. 
+    
+    Regarding skewness, intead of thinking of the plot of how skewness works, using this intuition, by my assumption, I can also visualise how data are comparing to each other, since it is right-skewed, this mean that by 
+    the formula, distance of value on the right is further away from the mean and far away from each other as well, that is why the tail on the right is longer as in how dense the plot is. 
+\paragraph{Range and interquartile range}
+    Range is the ``difference between the maximum and minimum'' while interquartile range, IQR, ``calculates the difference between the third quartile and the first quartile''. Differing from \emph{range} being sensitive
+    to extreme outliers, IQR circumvents such problem by quantifying a range of $50\%$ of data. In R,
+    \begin{Rblock}
+        quantile(face_data$rating, c(0.75)) - quantile(face_data$rating, c(0.25))
+    \end{Rblock}
+\paragraph{Mean absolute deviation}
+    Mean absolute deviation computes the average distance of data being from the mean, given by,
+    \begin{equation}
+        \mathrm{MAD}=\frac1n\sum_{i=1}^{n}|x_i-\bar{x}|
+    \end{equation}
+    In R,
+    \begin{Rblock}
+        sum(abs(x-mean(x)))/length(x)
+    \end{Rblock}
+\paragraph{Mean squared deviation, variance, and standard deviation}
+    Similar to MAD, however MSD uses square root, that is,
+    \begin{equation}
+        \mathrm{MSD}=\frac1n\sum_{i=1}^{n}(x_i-\bar{x})^2
+    \end{equation}
+    Variance differs from MSD when sample size is small but almost identical for large sample. Explained by the formula,
+    \begin{equation}\label{eq:GenericVarianceEquation}
+        s^2=\frac{\sum_{i=1}^{n}(x_i-\bar{x})^2}{n-1}=\frac{n\cdot\mathrm{MSD}}{n-1}
+    \end{equation} 
+    Standard deviation (std) ``is on the same scale as the original variable, instead of a squared scale for the variance.''
+    \begin{equation}
+        s=\sqrt{s^2}
+    \end{equation}
+\paragraph{Skewness and kurtosis}
+    Skewness and kurtosis both are computed by a \emph{standardised} value --- $z$-value --- having no unit, that is,
+    \begin{equation}
+        z_i=\frac{x_i-\bar{x}}{s}  
+    \end{equation}
+    Therefore, it means and variance are consecutively 0 and 1, given by,
+    \begin{equation}
+        \begin{aligned}
+            \frac{1}{n} \sum_{i=1}^{n} z_i &= \frac{1}{n}\cdot\frac{\sum_{i=1}^{n} (x_i - \bar{x})}{s} = 0 \\[6pt]
+            \frac{1}{n-1} \sum_{i=1}^{n} (z_i - 0)^2 
+            &= \frac{1}{n-1}\cdot\frac{\sum_{i=1}^{n} (x_i - \bar{x})^2}{s^2} = s^2/s^2 = 1
+        \end{aligned}
+    \end{equation}
+    Skewness -- $g_1$ -- measures the asymmetry of a plot while kurtosis -- $g_2\in[-0.5, 1.5]$ -- measures the peakedness of the plot. Both $g_1$ and $g_2$ can be either positive or negative, and unchanged 
+    when all values shifted by a fixed number or when they are multiplied with a fixed number, in other words, such operations on data do not change the shape. 
+    \begin{quote}
+        When $g_1$ is positive or called right-skewed, the values on the right side of the mean are further away from each other and the mean. Thus the tail on the right is thinly long. When $g_1$ is negative or called 
+        left-skewed, the same logic applied. When $g_1=0$ data is symmetric, or $|g_1|\leq0.3$ is near to symmetric.
+    \end{quote}
+    \begin{quote}
+        When $g_2$ is positive, it is called \emph{leptokurtic} having ``long heavy tails and is severely peaked in the middle''. When $g_2$ is negative, it is called \emph{platykurtic} having ``tails of 
+        the data are shorter with a flat peak in the middle''. When $g_2=0$, the data is called \emph{mesokurtic}.
+    \end{quote}
+    The two formulae,
+    \begin{equation}
+        g_1 = \frac{1}{n} \sum_{i=1}^{n} \left( \frac{x_i - \bar{x}}{\sqrt{\frac{\sum_{i=1}^{n}(x_i-\bar{x})^2}{n-1}}} \right)^3 =\frac{1}{n} \sum_{i=1}^{n} \left( \frac{x_i - \bar{x}}{s} \right)^3 
+    \end{equation}
+    \begin{equation}\label{eq:KurtosisEquation}
+        g_2 = \frac{1}{n} \sum_{i=1}^{n} \left( \frac{x_i - \bar{x}}{\sqrt{\frac{\sum_{i=1}^{n}(x_i-\bar{x})^2}{n-1}}} \right)^4 - 3 = \frac{1}{n} \sum_{i=1}^{n} \left( \frac{x_i - \bar{x}}{s} \right)^4 - 3
+    \end{equation}
+\subsection{A Note on Aggregated Data}
+    Practically, sometimes data has been summarised such as in groups or intervals, for example, counting people in salary group. To find the descriptive statistics of $n$ groups, the median $x_j$ of each group $j$ 
+    must firstly be calculated and with the frequency $f_j$ giving the formulae,
+    \begin{equation}
+        \begin{aligned}
+            \bar{x}&=\frac{\sum_{k=1}^{n} x_kf_k}{\sum_{i=1}^{n}f_i}\\[6pt]
+            s^2&=\frac{\sum_{k=1}^{n} (x_k-\bar{x})^2f_k}{\sum_{i=1}^{n}f_i - 1}
+        \end{aligned}
+    \end{equation}
+\section{Visualising Data}
+\subsection{Describing Nominal/Ordinal Variables}
+    Frequency is useful for describing Nominal and Ordinal data using \emph{bar chart} to emphasise on absolute numbers of frequencies and to compare the height (counts) of each value (or group), while using \emph{pie chart}
+    to emphasise on the relative frequency and to indicate the share of each value. In R,
+    \begin{Rblock}
+        counts <- table(face_data$age)  #$
+        t1 <- transform(counts, relative=proportions(Freq))
+        pie(t1$relative)
+        barplot(t1$Freq)
+    \end{Rblock}
+    There are more methods, as well as the advanced ones, but bar and pie chart would suffice for now.
+\subsection{Describing Interval/Ratio Variables}
+\paragraph{Box Plot}
+    Here shows the method to visualise continuous variables. Firstly the \emph{box plot}, in other words, \emph{box and whiskers} plot which is ``useful for getting a feel of the spread, central tendency, and variability''.
+    \begin{quote}
+        Middle bar is the median, top of the box is $Q_3$, whereas bottom of the box is $Q_1$. The whiskers are the smallest value $m$ and the largest value $\ell$ being
+        \begin{equation}
+            \begin{aligned}
+                &m\geq Q_1-1.5\mathrm{IQR}\\
+                &Q_3+1.5\mathrm{IQR}\geq \ell\\
+            \end{aligned}
+        \end{equation} 
+        As I assume that $m$ and $\ell$ cannot be thought of as the min and max since those could be outliers which are the dots being 
+        \begin{equation}
+            x_i\notin[Q_1-1.5\mathrm{IQR},Q_3+1.5\mathrm{IQR}] 
+        \end{equation}
+    \end{quote}
+    In R,
+    \begin{Rblock}
+        boxplot(face_data$rating)   #$
+    \end{Rblock}
+\paragraph{Histogram}
+    Histogram, a continuous variant of bar chart, discretising (\cref{sec:chapter1/discretising}) the data, then shows the frequency in each bin. Note that ``too few bins obscure the 
+    patterns in the data, but too many bins lead to counts of exactly one for each value''. Use \Rcode{breaks} to change the bins,
+    \begin{Rblock}
+        hist(face_data$rating)
+        hist(face_data$rating, breaks=5)
+        hist(face_data$rating, breaks=50)   #$
+    \end{Rblock}
+\paragraph{Freedman-Diaconis Rule}
+    One of the ways to determine the number of bins $b$ is Freedman-Diaconis rule, where the bin width $w$ is given by,
+    \begin{equation}
+        \begin{aligned}
+            w&=2n^{-1/3}\mathrm{IQR}\\
+            b&=\frac{\max-\min}{w}
+        \end{aligned}
+    \end{equation}
+\paragraph{Density Plot}
+    As of now, density plot can be understood as ``a continuous approximation of a histogram'' yielding a probability per range of values. The higher the line the more likely are the values to fall in that range. In R,
+    \begin{Rblock}
+        plot(density(face_data$rating)) #$ 
+    \end{Rblock}
+\subsection{Relations Between Variables and Multi-panel Plots}
+    \emph{Scatter plot} is used for describing the relationship between two continuous variables. Each dot of the plot is a unique $(x,y)$ pair. \emph{Box plot} is used to show the relationshop between a categorical variable
+    and a continuous variable. In R,
+    \begin{Rblock}
+        plot(face_data$dim1, face_data$rating)      # R automatically produce a scatter plot given two cont. vars
+        plot(face_data$gender, face_data$rating)    # R automatically produce a box plot given 1 cat. var and 1 cont. var
+    \end{Rblock}
+    In R, use \Rcode{par(mrow = c(x, y))} to set up a \emph{canvas} for plotting, $x,\;y$ are consecutively the row and column size for how many plots on the canvas. For example for 6 graphs in R,
+    \begin{Rblock}
+        par(mfrow=c(3,2))
+        plot(face_data$gender)
+        plot(face_data$gender, face_data$rating)
+        pie(counts)
+        barplot(counts)
+        hist(face_data$dim1)
+        plot(density(face_data$dim2))   #$
+    \end{Rblock}
+\subsection{Plotting Mathematical Functions}
+    To plot a math function, traditionally, firstly define a \Rcode{function} in R with the argument \Rcode{x}. Then, use \Rcode{seq()} to generate a sequence of number, check \Rcode{?seq} for help manual. Finally,
+    run \Rcode{plot()}, use \Rcode{type="l"} for a line plot instead of the default dots, or \Rcode{type="b"} for both line and dots. Alternatively, use \Rcode{curve(<function_name>, xlim=c(<start>, <end>))} to 
+    plot but make sure the function accept an \Rcode{x} argument, and \Rcode{xlim} is the domain.
+\paragraph{Frequently Used Arguments}
+    R's simple \Rcode{plot()} function can be tailored to our needs. Using the following
+    \begin{enumerate}
+        \item \Rcode{type}: type of plot
+        \item \Rcode{xlim}, \Rcode{ylim}: bound of either $x$-axis or $y$-axis using \Rcode{c(<upper>, <lower>)}
+        \item \Rcode{lwd}: set line width
+        \item \Rcode{col}: set colour of the plot (not whole graph), can be used with \Rcode{c(<number>, <number>)}
+        \item \Rcode{xlab}, \Rcode{ylab}: Labelling
+        \item \Rcode{main}: the top caption
+    \end{enumerate}
+\section{Problem}
+\subsection{1}
+\begin{Rblock}
+    get_modes <- function(v){
+        uniqv <- unique(v)
+        freq_oc_table <- tabulate(match(v, uniqv))
+        max_oc <- max(freq_oc_table)
+        max_oc_pos <- which(freq_oc_table==max_oc)
+        modes <- uniqv[max_oc_pos]
+        # return(unique(modes))
+        return(modes)
+    } 
+\end{Rblock}
+\subsection{2}
+In R use,
+\begin{Rblock}
+    dat <- dat[complete.cases(dat) & dat$Voting != 99 & dat$Age !=622,]
+\end{Rblock}
+where \Rcode{complete.cases(<data.frame>)} is to spot the missing value or NA, which returns a boolean vector.

@@ -1,0 +1,153 @@
+\chapter{Application Topics of Chapter 1 and 2}
+\section{Assignment 2.1 In The Book}
+\subsection{Part 4}
+\begin{Rblock}
+    y <- choose(n, m) 
+\end{Rblock}
+For the question 4, it introduce the function choose which is just a counting rule using combination. 
+\subsection{Part 5}
+In the answer of Systematic Sampling, that is
+\begin{Rblock}
+    group_1 <- c(1, 2, 3)
+    group_2 <- c(4, 5, 6)
+    group_3 <- c(7, 8, 9)
+    sample_2 <- rep(NA, 3)
+    sample_2[1] <- sample(group_1, size=1)
+    sample_2[2] <- sample_2[1] + 3
+    sample_2[3] <- sample_2[1] + 6 # or sample_2[2] + 3
+    sample_2
+\end{Rblock}
+Output 
+\begin{Rblock}
+    [1] 2 6 7
+\end{Rblock}
+Which is tedious to list all the group out. So there are better method. Firstly is using \Rcode{split()} with \Rcode{ceiling()}
+\begin{Rblock}
+    N <- 9
+    n <- 3
+    m <- N/n
+    population <- c(1:N)
+    groups <- split(population, ceiling(population/m))
+    start <- sample(groups[[1]], size=1)
+    S_2 <- start + (0:(n-1)) * m
+\end{Rblock}
+Or secondly is using \Rcode{split()}, with \Rcode{rep()}
+\begin{Rblock}
+    groups <- split(population, rep(c(1:m), each=m))
+    start <- sample(groups[[1]], size=1)
+    S_2 <- start + (0:(n-1)) * m
+\end{Rblock}
+\subsection{Part 6}
+In the answer for the Stratified sampling 
+\begin{Rblock}
+    sample_3 <- rep(NA, 3)
+    sample_3[1] <- sample(group_1, size=1)
+    sample_3[2] <- sample(group_2, size=1)
+    sample_3[3] <- sample(group_3, size=1)
+    sample_3
+
+    [1] 2 6 7
+\end{Rblock}
+Which is tedious to sample each of them on by one, therefore I can use \Rcode{sapply()}. Note that because \Rcode{split()} return a list with names, aka the group names. The \Rcode{sapply()} will return a named vector, with name of the position on 
+top each value, to remove that just use \Rcode{unname()}.
+\begin{Rblock}
+    N <- 9
+    n <- 3
+    m <- N / n
+    population <- 1:N
+
+    groups <- split(population, rep(1:n, each = m))
+
+    dat_3 <- sapply(groups, function(g) sample(g, size = 1))
+    unname(dat_3)
+\end{Rblock}
+
+\section{Exercise 2.2}
+\subsection{Part 1}
+Note that using \Rcode{as.data.frame()} or \Rcode{data.frame()} directly result the same. Keep in mind that \Rcode{cbind()} return matrix so if the vector contains different type it will covert all to character type, aka the string. Becareful
+using \Rcode{cbind()}. The code shows to use \Rcode{apply()}. The difference between \Rcode{\%in\%} and \Rcode{==} is that \Rcode{\%in\%} is value matching and ``returns a vector of the positions of (first) matches of its first argument in its second'' 
+This means you could compare vectors of different lengths to see if elements of one vector match at least one element in another. The length of output will be equal to the length of the vector being compared (the first one). On the other hand, 
+\Rcode{==} is logical operator meant to compare if two things are exactly equal. If the vectors are of equal length, elements will be compared element-wise. If not, vectors will be recycled. The length of output will be equal to the length of the 
+longer vector. (\href{https://stackoverflow.com/questions/42637099/difference-between-the-and-in-operators-in-r}{StackOverflow}). For example,
+\begin{Rblock}
+    1:2 %in% rep(1:2,5)
+    #[1] TRUE TRUE
+
+    rep(1:2,5) %in% 1:2
+    #[1] TRUE TRUETRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+
+    1:2 == rep(1:2,5)
+    #[1] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+
+    rep(1:2,5) == 1:2
+    #[1] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+\end{Rblock}
+
+
+\begin{Rblock}
+    school <- c(1:6)
+    students <- c(59, 28, 90, 44, 36, 57)
+    notimmunised <- c(4,5,3,3,7,8)
+
+    dat <- data.frame(cbind(school, students, notimmunised))
+    dat <- transform(dat, proportion=round(notimmunised/students,digits = 3))
+
+    theta <- 30/314
+
+    Samples <- combn(dat$school, m=3, simplify=TRUE)
+
+    proportion_sums <- apply(Samples, MARGIN = 2, function(combo) {
+        sum(dat$notimmunised[dat$school %in% combo])/sum(dat$students[dat$school %in% combo])
+    })
+
+    # proportion_sums <- apply(Samples, MARGIN = 2, function(combo) {
+        # mean(dat$proportion[dat$school %in% combo])
+    # })
+
+    bias <- `*`(sum(proportion_sums),1/20) - theta
+    bias
+    MSE <- `*`(sum((proportion_sums-theta)^2),1/20)
+    MSE #$
+\end{Rblock}
+\subsection{Part 2}
+\begin{Rblock}
+    school <- c(1:6)
+    students <- c(59, 28, 90, 44, 36, 57)
+    notimmunised <- c(4,5,3,3,7,8)
+
+    dat <- data.frame(cbind(school, students, notimmunised))
+    dat <- transform(dat, proportion=round(notimmunised/students,digits = 3))
+    theta <- 30/314
+
+    group_1<-c(1,3)
+    group_2<-c(4,6)
+    group_3<-c(2,5)
+
+    samples <- choose(2,1)**3
+
+    all_samples <- t(unname(expand.grid(group_1, group_2, group_3)))
+    all_samples
+
+    proportion_sums <- apply(all_samples, MARGIN=2, function(combo){
+        sum(dat$notimmunised[dat$school %in% combo])/sum(dat$students[dat$school %in% combo])
+    })
+
+    bias <- `*`(sum(proportion_sums),1/8) - theta
+    bias
+\end{Rblock}
+\section{Some Notes for Chapter 2}
+Firstly the randomness is actually lying inside the sampling not in the population, as the population values are $x_1,x_2,\ldots,x_N$, which as of now are constants. So how samples are drawn is random which is discussed in the chapter. This means
+that the estimator $T$, or the arithmetic mean $\bar{x}_k$ which mostly covered in chapter 2 is random. 
+
+Let's link back to the sampling plans, that is, $\{(S_k,\pi_k)\mid 1\leq k\leq K\}$ where $K$ is the number of samples. Each $S_k$ is random, and goes with it a probability $\pi_k$ (the probability of such plan being chosen). Therefore, 
+the sampling plan creates a probability distribution of the samples, where the $x$-axis is the sample (object), the $y$-axis is $\pi_k$. It is not much interested for now since every sample is uniformly distributed, however when applying the 
+estimator $\bar{x}_k$ giving $\hat{\theta}_k$ hence with the corresponding $\pi_k$, which may form a different distribution since some of the $\hat{\theta}_k$ maybe share the same value. That is why from 
+\cref{sec:GenericFormulationofSamplingPlans} suffice it to say that the ``quality of the sampling procedure relies solely on $S_k$'s and $\pi_k$'s''. Because when I have the distribution of $\hat{\theta}_k$, I can evaluate its closeness to the 
+population parameter (popluation mean) $\theta$ using MSE, bias, and SE. And $\hat{\theta}_k$ relies on $S_k$ via $T$. Overall it can be viewed as
+\begin{equation}
+    \underbrace{\{(S_k,\, \pi_k)\}}_{\text{the plan}}
+    \xrightarrow{\;T\;}
+    \underbrace{\text{distribution of } \hat{\theta}_k}_{\text{some curve}}
+    \longrightarrow
+    \text{bias, SE, MSE.}
+\end{equation}

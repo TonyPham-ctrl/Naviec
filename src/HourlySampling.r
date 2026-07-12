@@ -46,7 +46,6 @@ weights <- sapply(strata, function(stratum) nrow(stratum)/N)
 # choose(703,1)*choose(1095,1)*choose(1095,1)*choose(3284,1)*choose(2555,1)
 # choose(2555,2)
 
-
 # drawn <- lapply(strata, function(stratum) {
     # stratum[sample(nrow(stratum), S, replace=FALSE), ]
 # })
@@ -84,5 +83,3 @@ mean_SE <- mean(sample_SE)
 
 bias
 mean_SE
-
-
