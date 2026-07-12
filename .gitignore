@@ -10,7 +10,8 @@ data
 cache
 venv
 
-latex/_minted
-latex/*.gz
+latex/*/*_minted*
+latex/*/*.gz
+latex/*/*.bbl
 
 src/__pycache__
