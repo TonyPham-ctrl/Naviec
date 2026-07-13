@@ -7,6 +7,7 @@ bin
 ~
 data
 .DS_Store
+.env
 cache
 venv
 
