@@ -24,15 +24,17 @@ class NEMDataFetcher:
                 None
         '''
         if path == None:
-            BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-            self.datapath = os.path.join(BASE_DIR, "..", "..", "data")
-            self.datapath = os.path.abspath(self.datapath)
-            os.makedirs(self.datapath, exist_ok=True)
+            self.__datapath = os.path.join(os.getcwd(),'data')
+            os.makedirs(self.__datapath, exist_ok=True)
         else:
-            self.datapath = os.path.join(path, 'data')
-            os.makedirs(self.datapath, exist_ok=True)
+            self.__datapath = os.path.join(path, 'data')
+            os.makedirs(self.__datapath, exist_ok=True)
+        
 
-    def _generate_date_range(self, start_time: dt.datetime, end_time: dt.datetime) -> np.ndarray[dt.datetime]:
+    def get_file_path(self):
+        return self.__datapath
+
+    def __generate_date_range(self, start_time: dt.datetime, end_time: dt.datetime) -> np.ndarray[dt.datetime]:
         '''
             Generate a numpy array of dates using the given start_time and end_time
 
@@ -56,7 +58,7 @@ class NEMDataFetcher:
 
         return dates
 
-    def _get_files_save_path(self, date: dt.datetime, table: str) -> str:
+    def __get_files_save_path(self, date: dt.datetime, table: str) -> str:
         '''
             Generate directories for each of sub csv files. 
 
@@ -72,15 +74,15 @@ class NEMDataFetcher:
         month = str(date.month).zfill(2)
         day = str(date.day).zfill(2)
 
-        # This makes sure that the name would be, say, 2020|00|00 (The "|" is for visualisation).
+        # This makes sure that the name would be consistent, say, 2020|00|00 (The "|" is for visualisation).
         #===================================
 
-        folder = os.path.join(self.datapath, year, month, day)
+        folder = os.path.join(self.__datapath, year, month, day)
         os.makedirs(folder, exist_ok=True)
 
         return os.path.join(folder, f"{table}.csv")
 
-    def fetch_and_store(self, start_time: dt.datetime, end_time: dt.datetime, table: str):
+    def fetch_and_store(self, start_time: dt.datetime, end_time: dt.datetime, table: str='DISPATCHPRICE', filename: typing.Optional[str]='full_data.csv'):
         '''
             Fetch and Store The CSV Files From NEM. 
 
@@ -93,13 +95,21 @@ class NEMDataFetcher:
 
         # dates =  self._generate_date_range(start_time, end_time)
 
+        self.__full_csv_filepath = os.path.join(self.__datapath, filename)
+
         format='%Y/%m/%d %H:%M:%S'
         start=start_time.strftime(format)
         end=end_time.strftime(format)
-        df=dynamic_data_compiler(start_time=start,end_time=end,table_name=table,raw_data_location=self.datapath,fformat='csv')
-        output_file = os.path.join(self.datapath, "aemo_data.csv")
-        df.to_csv(output_file, index=False)
+        csv=dynamic_data_compiler(start_time=start,end_time=end, table_name=table, raw_data_location=self.__datapath, fformat='csv', filter_cols=['REGIONID'], filter_values=(['SA1'],))
 
+        if csv is None or csv.empty:
+            print('Empty data fetched.')
+            return
+        
+        # save_path = self.__get_files_save_path(start_time, table)
+        csv.to_csv(self.__full_csv_filepath, index=False)
+
+        
         # format="%Y/%m/%d 00:00:00"
         # for date in dates:
             # day_start = date.strftime(format)
@@ -115,6 +125,10 @@ class NEMDataFetcher:
             # saved_files.append(file_path)
 
         # return saved_files
+    
+    def get_working_dataset(self, filename: typing.Optional[str]='full_data.csv'):
+        # Using pandas to drop the unnecessary columns for now. Only focus on RRP, SETTLEMENTDATE. The REGIONID is SA1 by default.
+        df=pd.pandas.read_csv(self.__full_csv_filepath,sep=',')
 
 
 def run_fetch(
@@ -147,6 +161,14 @@ def main() -> None:
     )
 
 
+# ====== Use for testing with R =====
+'''
 if __name__ == "__main__":
     main()
 
+        dropping_cols=['INTERVENTION','RAISE6SECRRP','RAISE60SECRRP','RAISE5MINRRP','RAISEREGRRP','LOWER6SECRRP','LOWER60SECRRP','LOWER5MINRRP','LOWERREGRRP','PRICE_STATUS','REGIONID']
+        df.drop(columns=dropping_cols,inplace=True)
+
+        filename=os.path.join(self.__datapath, filename)
+        df.to_csv(filename, sep=',', index=False, header=True)
+'''

@@ -1,0 +1,285 @@
+\usepackage[margin=2cm]{geometry}
+\usepackage{amsmath, amsfonts, amssymb, xcolor, float, amsthm, mathtools, enumitem, cancel, soul, booktabs}
+\usepackage[calcwidth]{titlesec}
+\usepackage{ragged2e}
+
+% \usepackage{graphicx}
+% \graphicspath{ {./imgs/} }
+
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+    colorlinks=true,
+    citecolor=blue,
+    filecolor=blue,
+    linkcolor=blue,
+    urlcolor=blue
+}
+\usepackage[nameinlink,capitalise,noabbrev]{cleveref}
+\crefname{example}{Example}{Examples}
+\crefname{equation}{Equation}{Equations}
+
+\usepackage[T1]{fontenc}
+\usepackage{minted}
+
+\setminted{
+    fontsize=\normalfont,
+    style=emacs,
+    linenos,
+    breaklines,
+    breakanywhere,
+    autogobble,
+    tabsize=4,
+    frame=lines,
+    framesep=1mm,
+    numbersep=0.5em,      
+}
+
+% ── Python minted shortcuts ──────────────────────────────────
+\newcommand{\py}[1]{\mintinline{python}|#1|}
+\newcommand{\Rcode}[1]{\mintinline{R}|#1|}
+
+% so verbatim tokenisation works correctly
+\newminted[pyblock]{python}{}
+\newminted[Rblock]{R}{}
+
+
+% Optional: tweak line number look
+\renewcommand\theFancyVerbLine{\sffamily\scriptsize\arabic{FancyVerbLine}}
+\usepackage{fvextra}
+\DefineVerbatimEnvironment{pyout}{Verbatim}{
+    fontsize=\small,
+    frame=lines,
+    framesep=2mm
+}
+
+\newcommand{\R}{{\rm I\!R}}
+\let\biconditional\leftrightarrow
+
+%Formatting the sections
+\renewcommand{\thesection}{\arabic{section}}
+% \renewcommand{\thechapter}{\Roman{chapter}}
+\setcounter{secnumdepth}{3}
+\titleformat{\section}[hang]{\bfseries\Large}{\thesection}{1em}{}
+\titleformat{\subsection}[hang]{\bfseries\filleft\large}{\itshape\thesubsection}{1em}{}[\vspace{-1.5ex}\rule{1.4\titlewidth}{1pt}]
+
+\newcounter{example}[section] % resets each section (optional)
+\renewcommand{\theexample}{\thesection.\arabic{example}} % e.g. 1.3.1 (optional)
+\newcommand{\exampleparagraph}{%
+  \refstepcounter{example}%
+  \paragraph{Example \theexample}%
+}
+
+% Theoretical Statements Section (scrapped not useful)
+% \titleclass{\statement}{straight}[\subsubsection]
+% \newcounter{statement}
+% \titleformat{\statement}[hang]{\bfseries}{\itshape\thestatement\quad--}{1em}{}[]
+% \titlespacing{\statement}{1em}{1em}{1em}[1em]
+% \renewcommand{\thestatement}{\arabic{statement}}
+
+%Theoretical Statements Envs
+%amsthm
+\newtheoremstyle{break}%
+    {}{}
+    {}{\parindent}
+    {\bfseries}{:}
+    {\newline}{}
+\theoremstyle{break}
+\newtheorem{lem}{Lemma}
+\newtheorem{cor}{Corollary}
+\newtheorem{prop}{Proposition}
+\newenvironment{lemma}[1]{\begin{lem}[#1]\leavevmode\vspace{-1.5\baselineskip}}{\end{lem}}
+\newenvironment{corollary}[1]{\begin{cor}[#1]\leavevmode\vspace{-1.5\baselineskip}}{\end{cor}}
+\newenvironment{proposition}[1]{\begin{prop}[#1]\leavevmode\vspace{-1.5\baselineskip}}{\end{prop}}
+
+%For boxing environment
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable, most}
+\newtcolorbox{quotebox}[1][]{%
+  enhanced jigsaw,
+  sharp corners,
+  colback=white,
+  borderline={1pt}{-2pt}{black},
+  fontupper={\setlength{\parindent}{20pt}},
+  #1
+}
+%Theorem box
+\newtcolorbox{theorembox}[1]{
+    breakable = true,
+    title = #1,
+    coltitle = black,
+    colback = white,
+    fonttitle = \bfseries,
+    enhanced,
+    sharp corners,
+    boxrule = 0.5pt,
+    colframe = black,
+    attach boxed title to top left = {xshift = 15mm, yshift = -5.5mm},
+    boxed title style={
+        frame code={
+            \path[draw = black, fill = black]
+                ([yshift=-1mm,xshift=-1mm]frame.north west)
+                arc[start angle=0,end angle=180,radius=1mm]
+                ([yshift=-1mm,xshift=1mm]frame.north east)
+                arc[start angle=180,end angle=0,radius=1mm];
+
+            \path[draw = black, fill = white]
+                ([xshift=-2mm]frame.north west) -- ([xshift=2mm]frame.north east)
+                [rounded corners=1mm]-- ([xshift=1mm,yshift=-1mm]frame.north east)
+                -- (frame.south east) -- (frame.south west)
+                -- ([xshift=-1mm,yshift=-1mm]frame.north west)
+                [sharp corners]-- cycle;
+        },
+        interior engine = empty,
+        colback = white,
+    },
+    width = 0.95\linewidth,
+    top = 10mm,
+    left = 5mm,
+    overlay = {
+
+    }
+}
+% \newenvironment{theorembox}[1]
+    % {\begin{center}\begin{theobox}{#1}}
+    % {\end{theobox}\end{center}}
+
+%Definition box
+\newtcolorbox{definitionbox}{
+    breakable = true,
+    title = Definition,
+    fonttitle = \bfseries,
+    colback = white,
+    width = 0.85\linewidth,
+    coltitle = black,
+    frame hidden,
+    sharp corners,
+    enhanced,
+    attach boxed title to top left = {xshift = -0.5cm, yshift = -0.1mm},
+    boxed title style = {
+        colback = white,
+        frame hidden,
+    },
+    overlay = {
+        \node (A) at (title.south west) {};
+        \node (B) at (title.south east) {};
+        \node (C) at (frame.south west) {};
+        \draw [semithick] (A) -- (B);
+        \draw [semithick, double distance = 2pt] (C) -- (frame.north west);
+    },
+}
+% \newenvironment{definitionbox}
+    % {\begin{center}\begin{defbox}}
+    % {\end{defbox}\end{center}}
+
+\newtcolorbox{proofbox}{
+    enhanced,
+    breakable,
+    colback=white,
+    frame hidden,
+    width=0.85\linewidth,
+    left=2cm,                       % reserve space on the left
+    overlay={
+        % left vertical rule
+        \draw[semithick] ([xshift=1.8cm]frame.north west) -- 
+                        ([xshift=1.8cm]frame.south west);
+        % "Proof" label at the top-left reserved area
+        \node[anchor=north west,font=\itshape]
+        at ([xshift=0.2cm,yshift=-0.2cm]frame.north west) {proof};
+    },
+}
+% \newenvironment{proofbox}
+    % {\begin{center}\begin{boxproof}}
+    % {\end{boxproof}\end{center}}
+
+\newtcolorbox{ProofIllustrationBox}{
+    breakable = true,
+    colback = white,
+    coltitle = black,
+    sharp corners,
+    enhanced,
+    %segmentation
+    segmentation style = {
+        solid,
+        black,
+    },
+    %font
+    fontlower = \sffamily\itshape\scriptsize,
+    %format
+    size = fbox,
+    halign lower = center,
+    halign upper = center,
+}
+\newtcolorbox{example}{
+    breakable = true,
+    title = Example,
+    sidebyside,
+    sidebyside align = top seam,
+    enhanced,
+    coltitle = black,
+    colback = white,
+    %Title
+    attach boxed title to top left = {xshift = 1cm,},
+    boxed title style = {
+        colback = white,
+        colframe = black,
+        skin = enhancedfirst jigsaw,
+        size = small,
+        arc = 1mm,
+        bottom = -1mm,
+        boxrule = 0.8pt,
+    },
+    %Segmentation
+    segmentation style = {
+        thick,
+        solid,
+        shorten <= 10pt,
+        shorten >= 10pt,
+    },
+    sharpish corners,
+    colframe = black,
+    boxrule = 0.8pt,
+    width = 0.8\linewidth,
+}
+\newenvironment{examplebox}
+    {\begin{center}\begin{example}}
+    {\end{example}\end{center}}
+
+
+
+%Tikz
+\usepackage{tikz}
+\usetikzlibrary{spy, intersections, calc, angles, quotes, fit, decorations.pathmorphing}
+\tikzset{help lines/.style 2 args = {very thin, color = #1, step = #2}}
+\tikzset{Hai lines/.style = {help lines = magenta}}
+
+%For Pseudocode
+\usepackage[ruled,titlenotnumbered]{algorithm2e}
+\NoCaptionOfAlgo
+\SetAlgoCaptionSeparator{}
+\SetAlCapNameFnt{\large\scshape}
+\DontPrintSemicolon
+\SetAlgoLongEnd
+\SetAlgoInsideSkip{smallskip}
+\SetKwProg{Fn}{function}{:}{end function}
+\SetKwComment{Comment}{$\triangleright$\ }{}
+\usepackage{caption}
+%Highlighting the pseudo-code in the algorithm environment using Tikz fit
+\newcommand{\boxit}[3]{
+    \tikz[remember picture,overlay] \node (A) {};\ignorespaces
+    \tikz[remember picture,overlay]{
+            \node[yshift=3pt,fill=#1,opacity=.25,
+            fit={ ($(A)+(-0.1,0.3\baselineskip)$) ($(A)+(#2\textwidth,-{#3}\baselineskip - 0.25\baselineskip)$) } ] {};
+        }\ignorespaces
+}
+\newcommand\mycommfont[1]{\footnotesize\ttfamily\itshape #1\unskip}
+\SetCommentSty{mycommfont}
+\setlength{\algomargin}{2em}
+\setlength{\interspacetitleruled}{6pt}
+\setlength\algoheightrule{1.5pt}
+
+
+% \title{\texttt{Python} Notes}   
+% \date{\today}
+% \author{Tri Hai Huynh \\ \\
+        % Undergraduate Student of The University \emph{of} Adelaide, \\ \\
+        % Adelaide, South Australia}

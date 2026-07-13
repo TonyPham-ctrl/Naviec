@@ -8,3 +8,13 @@ bin
 data
 .DS_Store
 .env
+cache
+venv
+
+latex/*/*_minted*
+latex/*/*.gz
+latex/*/*.bbl
+latex/*.gz
+latex/*_minted*
+
+src/__pycache__

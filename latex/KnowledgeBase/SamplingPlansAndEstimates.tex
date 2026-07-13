@@ -1,0 +1,542 @@
+\chapter{Sampling Plans and Estimates}
+% --------------------------------------------------- %
+% =================== New Section =================== %
+% --------------------------------------------------- %
+\section{Introduction}
+\emph{Statistical inference} is ``to extend the conclusion beyond the observed data''. The origin or source of the data is important. For example, in the university, a selection both all female and male from different 
+courses, but the selection only based on the GPA on the higher spectrum. Then the ``dataset is considered \emph{selective} towards'' high-scoring students. Those issues can be overcome by the understanding of 
+population, sample, sampling procedures, and estimation of population characteristics
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.35]{RelationBetweenPopulationAndSample}
+\end{figure}
+A dataset contains multiple units. In the case of the units of the sample data comprising \\$\{x_1,x_2,\ldots,x_n\}$ which is a subset, not necessarily the same index, of the 
+population, $\{x_1,x_2,\ldots,x_N\}$. To create a sample, I do \emph{sampling procedures}, formal probabilistic approaches, whose values ``are referred to as a realization from the population''. 
+
+Knowing the sampling procedures, I know how close the \emph{estimates}, calculation on sample data, to the \emph{theoretical value}, ``a calculation procedure applied to all units in the population'', in the 
+population and also have precise statistical inference. Note that it is called ``theoretical'' value because each unit may not be in population but in our belief.
+
+% --------------------------------------------------- %
+% =================== New Section =================== %
+% --------------------------------------------------- %
+\section{Definitions and Standard Terminology (cont.)}
+\emph{A unit} ``is usually a concrete or physical thing for which we would like to measure its characteristics''. For example, unit as human in medical, social science, etc. or as images in photography, computer vision.
+The sets of units (SOU) to obtain data is a sample which is a subset of a complete SOU, the (target) population. Note that, sometimes there exists units not from the target.
+
+``Statistical inference is the process of deducing properties of an underlying population by analysis of the sample data. Statistical inference includes testing hypotheses for the population and deriving population estimates.''
+
+Intuitively, as of now, units can be thought of as the \Rcode{id} in many dataset given that each of that corresponds to a unique thing (unit).
+
+\emph{A unit} can be \emph{sample unit} or \emph{observation unit}. Based on my assumed intuition, for example, each sample has set of \Rcode{id}'s (sample units), each \Rcode{id} contains multiple ``hidden'' attributes 
+(the columns next to it) depending on what to estimate, those are the observation unit. Say, estimating university's output quality, the sample unit is the student whose observation units are degree, achievement, GPA, etc.
+
+Defining a population is hard since there are so many ambiguities to be unveiled, and sampling the whole population is impractical. Thus, we rely on the a small sample which can be from \emph{non-representative sampling} or 
+\emph{representative sampling}. The first one implies that the exact process of getting units is unknown. The second one implies the units approxmiate probability distribution of the population and therefore referred to as 
+\emph{random} or \emph{probability sampling}.
+
+% --------------------------------------------------- %
+% =================== New Section =================== %
+% --------------------------------------------------- %
+\section{Non-representative Sampling}
+\begin{quote}
+    ``It is strongly recommended not to apply these methods, unless knowledge is available on how to adjust or correct the sample for inferential purposes.''
+\end{quote}
+\subsection{Convenience Sampling}
+Convenience sampling collect data that is easily attainable, which only depicts a small fraction of the whole population, provides \emph{a biased sample}. Such sampling ``is often justified by using the argument of 
+population homogeneity'', with such assumption it is irrelevant to sample anymore since all of population is the same.
+
+\subsection{Haphazard Sampling}
+Sample something by random but have a tendency to select something based on our unconscious preference.
+
+\subsection{Purposive Sampling}
+Purposive sampling or judgmental sampling tries to sample units for a specific purpose. Such sampling is useful to infer specific knowledge from the \emph{population of interest}, but not general statements about the whole
+population. For example, I am interested about the electricity usage during winter, so I only include the data of months in the winter period. 
+
+% --------------------------------------------------- %
+% =================== New Section =================== %
+% --------------------------------------------------- %
+\section{Representative Sampling}
+In NRS, some units are more likely to appear in data but importantly its quantity is unknown. In RS, aka a control randomness using probability, the likelihood of a specific unit occur in the sample is known. For example, 
+a rolling dice has 6 surfaces, each can appear with probability of $1/6$. Therefore if a unit to be shown with a probability $1/m$ then create $m$ sides. Practically, use pseudorandom numbers to select unit.
+
+\subsection{Simple Random Sampling}
+\label{sec:SRS}
+SRS is a way to collect units from the population with the same probability, but it is proved to be hard in practice. However, it is important in statistical theory. In R,
+\begin{Rblock}
+    x <- c(1:20)
+    set.seed(575757)
+    # FALSE means sample without replacement aka the Combination
+    s_dat <- sample(x, 5, replace=FALSE, prob=NULL)
+\end{Rblock}
+
+For example, let $N=6$, and $n=3$ (sample size), then there are $K=20$ (combinations). Therefore, the probability of each combination is $p_c=1/20$, but $p_u=1/2$ for each unit. By the general property of SRS,
+\begin{quote}
+    ``Each unique sample (or combination) has the same probability of being selected, and, as a result, each unit has the same probability of being selected.''
+\end{quote}
+Each unit in the population appears 10 out of 20 times in the combination, if listing out all the combination. 
+
+It is cumbersome to calculate the total number of samples or combinations then the probability, lastly select the random one. The combination of $K$ is given by,
+\begin{equation}
+    K=\frac{N!}{n!(N-n)!}
+\end{equation}
+As $N$ gets larger the complexity increase tremendously. Similarly for $n$.
+
+\paragraph{Sequential Sampling}
+A practical approach to SRS is that picking each unit with a probability to form a sample. With the same example, let $S_j=\{x,y,z\}$ be a sample where $i\in\{1,2,\ldots,20\}$, and $x,y,z$ are the units. Sequentially
+picking a unit \emph{without replacement} would gives the following probability for each unit,
+\begin{equation*}
+    \begin{aligned}
+        p_i&=1/6\\
+        p_j&=1/5\\
+        p_k&=1/4\\
+        p_i\times p_j\times p_k&=1/120\neq1/20
+    \end{aligned}
+\end{equation*}
+However, there are $3!$ variants (duplicate), hence $p_{S_i}=3!\times1/120=1/20$
+
+\paragraph{SRS's Property}
+\begin{quote}
+    ``Each unique sample (or combination) has the same probability of being selected, and, as a result, each unit has the same probability of being selected.''
+\end{quote}
+An informal proof can be demonstrate as the following,
+\begin{proofbox}
+    For the first unit $i=1$, the combination of the population without the first unit is
+    \begin{equation*}
+        \frac{(N-1)!}{n!(N-1-n)!}
+    \end{equation*}
+    Hence the probability of $i=1$ not in samples is,
+    \begin{equation*}
+        \frac{\frac{(N-1)!}{n!(N-1-n)!}}{\frac{N!}{n!(N-n)!}}=\frac{\cancel{(N-1)!}\cancel{n!}\cancelto{N-n}{(N-n)!}}{\cancelto{N}{N!}\quad\cancel{n!}\cancel{(N-n-1)!}}\quad=\frac{(N-n)}{N}
+    \end{equation*}
+    The probability of $i=1$ in samples is,
+    \begin{equation*}
+        1-\frac{(N-n)}{N}=\frac{n}{N}
+    \end{equation*}
+    By induction it's said to be true for all unit.
+\end{proofbox}
+
+\subsection{Systematic Sampling}
+\label{sec:SystematicSampling}
+Divides the data in $n$ (sample size) groups, order of each unit is maintained, comprising $m$ (units). Each units can be selected with probability $1/m$ within each group. Note that, I assume this is the rule to avoid 
+bad sampling, ``systematic sampling provides only $m$ possible sets of samples'', 
+
+Using the earlier example, therefore I only have two sample $S_1=\{i,j,k\}$ and $S_2=\{x,y,z\}$ since $6/3=2$ (units for each group). 
+Note that, similar to SRS every unit in the population has the same probability. Furthermore, each unit is selected with probability $1/m$ and each sample (combination) can be selected with probability $1/m$ as well. 
+I assume that they share the property.
+
+The advantage is less complexity than SRS. SysS is used much in manufacturing in relation to a time period. For example, checking quality of product every 30 minutes, to have SS just pick randomly any time in the 30-minute 
+interval. SysS also lead to less mistakes and improper short cuts in sampling that would lead to a haphazard or convenience sample. A clear disadvantage is that ``the period for systematic sampling may coincide with 
+particular patterns in the process or population''. In other words, the sample size needs to be a multiple of the population.   
+
+\subsection{Stratified Sampling}
+SRS and SysS do not account for the implicit characteristics dividing the population into subpopulations, for example gender, country, etc. divide people. When the size of the subpopulation are substaintially different
+then not all type of units is collected. For examples, country A has 10,000,000 females but just 100 males then there is a high chance that no units of males are collected. However, SRS and SysS assume the 
+unit aligns with the time order that means, say, a product in a factory is produced at time $t$, the next one is at time $t+1$ and so on. 
+
+StrS accomodates the problem by setting a sample size of each subpopulation to a certain percentage of the number of units of the subpopulation. Like a fair share.
+
+StrS works with time periods as well. By that, The population divided into $n$ groups, whose orders are maintained, comprising $m$ units with selecting probability $1/m$. The number of samples is the following,
+\begin{equation}
+    K=\frac{N_1!}{n_1!(N_1-n_1)!}\times\frac{N_2!}{n_2!(N_2-n_2)!}\times\cdots\times\frac{N_M!}{n_M!(N_M-n_M)!}
+\end{equation}
+where $N_i$ is the population size of each stratum $i$, $n_i$ is the sample size from each stratum $i$, given that $i\in\{1,2,\ldots,M\}$, $M$ being number of strata. Note that $\sum^{M}N_i=N$ and 
+$\sum^{M}n_i=n$. For instance of the time periods of the 6-sized population and 3-sized sample, $N_i=2$; $n_i=1$; $M=3$ therefore the possible samples: $2^3=8$ -- Different from SysS.
+
+Similarly to SRS and SysS, the probability of each sample is $p_s=1/K$. The probability of any unit in stratum $i$ is $n_i/N_i$. ``If the ratio of $n_i/N_i$ is the same across all strata, each unit in the 
+population has the same probability of being collected in the sample. This type of stratified sampling is called \emph{proportional stratified sampling}''.
+
+\subsection{My Assumption}
+The reason for the difference between StrS and SysS is because SysS only allows a single pick for all group whereas StrS not only allow multiple sample from a group but also multiple parsing through all group. StrS sort 
+of like the Sequential Sampling from SRS. That is why the number of sample for SysS is,
+\begin{equation}
+    K=\frac{m!}{1!(m-1)!}=m
+\end{equation}  
+
+\subsection{Cluster Sampling}
+Sometimes when direct sampling is not possible. Say, the lack of housing data but can be resolved by looking at images of region, groups or clusters of houses. Therefore, \emph{cluster sampling} involves randomly selecting
+\emph{clusters of units}. However, cluster sampling create groups of characteristics, which need to be acknowledged and analysed carefully to make proper statement about the whole population, because of its 
+hierarchical structure. For examples, the metropolitan regions are densly packed with accomodations, but otherwise for rural areas. 
+
+Cluster sampling can be performed as \emph{single-stage} or \emph{multiple stages}. For single-stage, a random clusters are sampled and all unit from there is chosen. For multiple stages, say 2-stage, first random clusters
+are sample, then random units from such clusters are collected. The $m$-stage is the $m$ depth of the sample procedures. The first sample units of the first stage is the \emph{primary cluster units}.
+
+The example of the sampling process is in page 52 of the book. Not written here yet since do not understand the probability of $1/6$.
+
+% --------------------------------------------------- %
+% =================== New Section =================== %
+% --------------------------------------------------- %
+\section{Evaluating Estimators Given Different Sampling Plans}
+After a plentiful of basics sampling procedures, to evaluate their ``closeness'' to the population's theoretical value, it's important to understand them through \emph{bias}, \emph{mean squared error} (MSE), and 
+\emph{standard error} (SE) to measure the closeness to know the performance of the estimators.
+
+\subsection{Generic Formulation of Sampling Plans}
+\label{sec:GenericFormulationofSamplingPlans}
+\begin{definitionbox}
+    Let $n$ be the sample size, and the population of units be $\Omega=\{1,2,\ldots,N\}$, where $N\geq n$. Let $S_k\subset\Omega$ for $k=1,2,\ldots,K$ (samples) s.t $S_k$ has $n$ unique units from $\Omega$ and 
+    $\cup_{k=1}^{K}S_k=\Omega$. Each $S_k$ has a corresponding probability $\pi_k>0$ s.t $\sum^{K}_{k=1}\pi_k=1$. Let $S_k$ be unique, that is, $S_k\neq S_l$ when $k\neq l$. It is not required for $S_k\cap S_l=\varnothing$.
+    A sampling plan is
+    \begin{equation}
+        \mathcal{P}=\{(S_1,\pi_1),(S_2,\pi_2),\ldots,(S_K,\pi_K)\}
+    \end{equation}
+    In other words, a set of samples and their corresponding probability.
+\end{definitionbox}
+Note that all of the previous random samplings obey this definition. The sampling plan results in set of probabilities $p_1,p_2,\ldots,p_N$ for units $1,2,\ldots,N$ with $p_i>0$, that is, the relation 
+$\hat{\mathcal{P}}=\{(p,\omega)\mid p\in\mathbb{P}\;\mathrm{and}\;\omega\in\Omega\}$. It is not necessary that $\sum_{i=1}^{N}p_i=1$.
+Recall those previous examples, the 6-pop and 3-sample one, we know that each sample has some probability, and in each sample the unit
+appear in some amount of time thus, somewhow, from there the probability of the unit can be estimated. 
+
+The sampling plan has all the \emph{necessary} information to analyse \emph{the quality of the sampling procedure}. Even if with different sampling techniques, the quality solely relies on $S_k$'s and $\pi_k$'s.
+
+\subsection{Bias, Standard Error, and Mean Squared Error}
+\subsubsection{Notations}
+Consider a population of $N$ units, and \emph{a single} characteristic of the population is consider. Then, each unit $i$ has a single theoretical value $x_i$. The population's parameter of interest is defined by 
+$\theta\coloneq\theta(\boldsymbol{x})$, where $\boldsymbol{x}=\{x_1,x_2,\ldots,x_N\}$ as some sort of calculation on all theoretical value, for example, population mean, or variance.
+
+The sample $S_k$ of size $n$ is a set $S_k=\{i_1,i_2,\ldots,i_n\}$ where $i_h=\{1,2,\ldots,N\}$ s.t $i_h\neq i_l$ when $h\neq l$. Each sample $S_k$ has an observation row-vector 
+$\boldsymbol{x}^\top_k=\left(x_{i_1},x_{i_2},\ldots,x_{i_n}\right)$. By definition, the vector is written in vertical column, so we need to have a tranpose. The \emph{descriptive statistics} can be computed by 
+$\hat{\theta}_k=T(\boldsymbol{x}_k)$, an \emph{estitmate} for the population parameter $\theta$. Most of time $T=\theta$, but different $T$ is used depening on \emph{sampling plan}. Note that, it is the \textbf{function} $T$ 
+and the \textbf{calculation} $\theta$, those mean, variance, etc. formulae. $T$ is an \emph{estimator}.
+
+Generally, $\hat{\theta}_k$ is an estimate of the population param. A good estimate is when sample is random and sample result is quite close to the pop. param.
+
+\paragraph{Weighted Average}
+One of $T$ functions can be the weighted average divided by the sum of all weights (\href{https://math.stackexchange.com/questions/3480195/the-definition-of-expected-value-and-weighted-average}{Math Stack Exchange}), given by
+\begin{equation}
+    \sum_{i\in S_k}\frac{w_ix_i}{1}\quad\mathrm{s.t}\sum_{i\in S_k}w_i=1
+\end{equation}
+
+\subsubsection{Bias}
+The bias of an estimator $T$, given a sampling plan for parameter $\theta$ is defined as
+\begin{equation}
+    \mathrm{bias}=\sum_{k=1}^{K}\hat{\theta}_k\pi_k-\theta=\mathbb{E}(T)-\theta
+\end{equation}
+If the bias is zero this means through repetitively taking samples from the sampling plan to calculate the statistics of interest, the average of all those statistics is equal to the true population parameter. Moreover,
+the estimator is said to be \emph{unbiased}. Bias is not necessary bad.
+\paragraph{Expected Population Parameter}
+It is defined as 
+\begin{equation}
+    \mathbb{E}(T)=\sum_{k=1}^{K}\hat{\theta}_k\pi_i 
+\end{equation}
+
+\subsubsection{Mean Squared Error}
+A small bias only shows \emph{on average} how close the sample's stats. are to the population parameter, but not individual stats. MSE concerns with the variability of the estimator accross different samples, defined as,
+\begin{equation}
+    \mathrm{MSE}=\sum_{k=1}^{K}\left(\hat{\theta}_k-\theta\right)^2\pi_k
+\end{equation}
+The smaller MSE is the better the sampling plan. Sometimes the root mean square error (RMSE) is reported, which is simply $\mathrm{RMSE}=\sqrt{\mathrm{MSE}}$
+
+\subsubsection{Standard Error}
+\begin{equation}
+    \mathrm{SE}=\sqrt{\sum_{k=1}^{K}\left(\hat{\theta}_k-\mathbb{E}(T)\right)^2\pi_k}
+\end{equation}
+The standard error of an estimator is used as a measure to represent our uncertainty regarding an estimate. In many examples the standard error contains population parameters that we do not know. To use standard errors 
+in practice we have to estimate the standard error as well.
+
+\paragraph{RMSE and SE}
+When the estimator is unbiased the RMSE and SE are identical, given by,
+\begin{equation}
+    \mathrm{RMSE}=\sqrt{\mathrm{SE}^2+\left(\mathbb{E}(T)-\theta\right)^2}
+\end{equation}
+Hence, the RMSE is never smaller than SE.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.35]{Bias_MSE_SE.png}
+\end{figure}
+
+% --------------------------------------------------- %
+% =================== New Section =================== %
+% --------------------------------------------------- %
+\section{Estimation Of The Population Mean}
+\label{sec:EstimationOfThePopulationMean}
+When population mean $\mu=\sum^N_{i=1}x_i/N$ is in the form of weighted average, the bias, MSE, and SE can be formulated mathematically when sampling plans are SRS, SysS, StrS, cluster sampling. Given some observations 
+from the sample $S_k$, there occurs many times that some obeservations are more important than others. In practice, this could due to gender, age, etc. Therefore, we use a weighted average, a weigthed average of a sample $S_k$ is,
+\begin{equation}
+    \bar{x}_{w,k}=\sum_{i\in S_k} w_{ik}x_i\quad\mathrm{s.t}\;\sum_{i\in S_k}w_{ik}=1
+\end{equation}
+Note that the weight depends on the sample $S_k$, but in this book assumes otherwise, that is, $w_{ik}=w_i$. This section concerns about the weighted average estimator for all the sampling plans.
+
+\subsection{Simple Random Sampling}
+The arithmetic mean in such sampling is the only unbiased estimator for the population mean in the class of weighted averages. Recall that, the expected population parameter is a weighted average of sampling plans.
+\begin{equation*}
+    \mathbb{E}(T)=\sum^K_{i=1}\hat{\theta}_k\pi_k
+\end{equation*}
+\begin{proofbox}
+    To demonstrate that $\bar{x}_k$ is unbiased, let recall from \cref{sec:SRS}, every value appear 10 out of 20 samples, so for a unit $i$ it appear in the all $K$ samples at most
+    \begin{equation}\label{eq:EstimatePopMean/SRS/Count}
+        K\frac{n}{N}
+    \end{equation}
+    From \cref{sec:GenericFormulationofSamplingPlans}, $\cup_{k=1}^K S_k=\Omega$. Instead of caclulating the mean of all SRSs as individual unit in each sample, that is, (By Group then by element)
+    \begin{equation}
+        \mathbb{E}(T)
+            = \sum_{k=1}^{K} \bar{x}_k\frac1K
+            = \sum_{k=1}^{K} \sum_{i \in S_k}x_i \frac{1}{nK}.
+    \end{equation}
+    From \cref{eq:EstimatePopMean/SRS/Count}, the occurence of each unit is known, the all the sample means can be calculated via that. Thus,
+    \begin{equation}
+        \sum_{k=1}^{K} \sum_{i \in S_k}x_i= \sum^N_{i=1}\frac{nK}{N}x_i
+    \end{equation}
+    Multiply $\frac{1}{nK}$ to both side,
+    \begin{equation*}
+        \mathbb{E}(T)=\frac1N\sum^N_{i=1}x_i=\mu
+    \end{equation*}
+    This makes the bias equal to
+    \begin{equation}
+        \text{bias} = \mathbb{E}(T) - \mu = 0.
+    \end{equation} 
+\end{proofbox}
+
+The MSE of the single arithmetic mean is,
+\begin{equation}
+    \mathrm{MSE}(\bar{x}_k)=\sigma^2\left(\frac{N}{N-1}\right)\left(1-\frac{n}{N}\right)\frac1n
+\end{equation}
+where $\sigma^2=\sum_{i=1}^{N}(x_i-\mu)^2/N$ is the population variance. When $n=N$, the MSE is not necessarily equal to 0. Given that $\mathrm{MSE}=\mathrm{bias}^2+\mathrm{SE}^2$, say now the arithmetic mean is not fully 
+unbiased. For example, $c\bar{x}_k$ then $\mathrm{bias}=(c-1)\mu$ and,
+\begin{equation}
+    \mathrm{SE}^2=c^2\sigma^2\left(\frac{N}{N-1}\right)\left(\frac{1-\frac{n}{N}}{n}\right)
+\end{equation}
+So when $n=N$, 
+\begin{equation}
+    \mathrm{MSE}(c\bar{x}_k)=[(c-1)\mu]^2
+\end{equation}
+When $n<N$, the MSE of $c\bar{x}_k$ would be lower than $\bar{x}_k$ but this depends heavily on $c$ and $\mu$.
+
+\subsubsection{Estimation of the MSE}
+Because MSE now depends on the population variance, we need to estimate it. The unbiased estimator for the population variance is 
+\begin{equation}
+    \hat{\sigma}^2=\left(\frac{N-1}{N}\right)s^2_k
+\end{equation}
+where $s^2_k=\sum_{i\in S_k}(x_i-\bar{x}_k)^2/(n-1)$ is the sample variance. Therefore,
+\begin{equation}
+    \hat{\mathrm{MSE}}(\bar{x}_k)=\frac{(N-n)s^2_k}{Nn}
+\end{equation}
+
+\subsection{Systematic Sampling}
+Assume that the population is perfectly splitted into $n$ group of size $m$, each group select the $k^{th}$ unit. The samples are $S_1,S_2,\ldots,S_m$ where $S_k=\{k,k+m,k+2m,\ldots,k+(n-1)m\}$, each sample has the same
+probability $1/m$, the sample's arithmetic average is
+\begin{equation}
+    \bar{x}_k=\frac1n\sum_{i=1}^{n}x_{k+(i-1)m}
+\end{equation}
+If the population is perfectly splitted, that is, $N=mn$ the unbiased estimator of the population mean $\mu$ is $\bar{x}_k$. Given that, (By element then by group)
+\begin{equation}
+    \mu=\frac1N\sum_{h=1}^{m}\sum_{i=1}^{n}x_{h+(i-1)m}
+\end{equation}
+The MSE is
+\begin{equation}
+    \sigma^2-\frac1N\sum_{h=1}^{n}\sum_{i=1}^{m}\left(x_{h+(i-1)m}-\bar{x}_h\right)^2
+\end{equation}
+And the population variance is, 
+\begin{equation}
+    \sigma^2=\frac1N\sum_{k=1}^{m}\sum_{i=1}^{n}\left(x_{k+(i-1)m}-\mu\right)^2
+\end{equation}
+The SysS is more efficient then SRS when the population variance is large.
+\subsubsection{Estimation of the MSE}
+In the general setting for systematic sampling, an unbiased estimation of the MSE is not possible. However, given that there is no systematic difference between units based on their position in the groups (and the ratio
+of sample and population size is an integer). By (\cref{sec:SystematicSampling}), I assume that this mean both the probability of the sample and unit is the same, thus follow the property of SRS. Then, the MSE of the sample 
+average under systematic sampling becomes equal to the MSE of the sample average under simple random sampling.
+
+\subsection{Stratified Sampling}
+\subsubsection{Definitions}
+The section concerns with the properties of weighted average under StrS. To indicate unit $i\in\{1,2,\ldots,N_h\}$ for units in stratum $h\in\{1,2,\ldots,M\}$ with $N_1+N_2+\ldots+N_M=N$, use the indices $(h,i)$, i.e 
+$x_{hi}$. The population mean is
+\begin{equation}
+    \mu=\frac1N\sum_{h=1}^{M}\sum_{i=1}^{n}x_{hi}=\sum_{h=1}^{m}w_h\mu_h
+\end{equation}
+where $w_h=N_h/N$ and $\mu_h=\sum_{i=1}^{N_h}x_{hi}/N_h$. Therefore, the population mean is the weighted mean of strata mean $\mu_h$. The variance in stratum $h$ is defined as 
+\begin{equation}
+    \sigma^2_h=\frac{1}{N_h}\sum_{i=1}^{N_h}(x_{hi}-\mu_h)^2
+\end{equation}
+The relationship between the population variance and the strata variances is given by
+\begin{equation}
+    \sigma^2=\frac1N\sum_{h=1}^{M}\sum_{i=1}^{N_h}(x_{hi}-\mu_h)^2=\sum_{h=1}^{M}w_h\sigma^2_h+\sum_{h=1}^{M}w_h(\mu_h-\mu)^2
+\end{equation}
+The first part represents a weighted mean of the within strata variances and the second part represents a weighted mean of the squared distances of the strata means to the population mean. They may be referred to as 
+within and between (strata) variances.
+
+\subsubsection{MSE of Sample Mean}
+Let the stratum sample size be $n_h$, where $\sum^M_{h=1}n_h=n$. The possible sample for the stratum $h$ is $S_{h,1},S_{h,2},\ldots,S_{h,K_h}$ where 
+\begin{equation*}
+    K_h = \frac{N_h!}{n_h!(N_h-n_h)!}
+\end{equation*}
+The sample mean of a sample $k$ of stratum $h$ is,
+\begin{equation}
+    \bar{x}_{h,k}=\sum_{i\in S_{h,k}}\frac{x_{h,i}}{n_h} 
+\end{equation}
+and the sample variance of such is,
+\begin{equation}
+    s^2_{h,k}=\sum_{i\in S_{h,k}}\frac{(x_{h,i}-\bar{x}_{h,k})^2}{n_h-1} 
+\end{equation}
+
+Since each stratum use SRS to sample then the sample mean $\bar{x}_{h,k}$ is unbiased, moreover the bias and SE follows the theory of SRS. Thus, SE can be estimated with
+\begin{equation}
+    \hat{\mathrm{SE}}(\bar{x}_{h,k})=\sqrt{\frac{1-f_h}{n_h}}s_{h,k}
+\end{equation}
+where $f_h=n_h/N_h$
+
+The population mean can be estimated with,
+\begin{equation}
+    \hat{\mu}=\bar{x}_{k}=\sum_{h=1}^{M}w_h\bar{x}_{h,k}
+\end{equation}
+given that $w_1=w_2=\ldots=w_M$. The intuition is simply that each sample mean $\bar{x}_{h,k}$ is unbiased, and plus add all the stratum create the population. To be unbiased, the weights need to be all similar. All because each stratum follows 
+the theory of SRS.
+
+Firstly the property of SE is that $\mathrm{SE}(cT)=c\mathrm{SE}(T)$. Secondly, using SRSs for different strata is not related, so $\sum^M_{h=1}\mathrm{SE}(w_h\bar{x}_{h,k})=\mathrm{SE}(\bar{x}_k)$. Finally, the 
+$\mathrm{SE}^2(\bar{x}_{h,k})=\mathrm{MSE}(\bar{x}_{h,k})$ since $\bar{x}_{h,k}$ is unbiased. Therefore the MSE of $\bar{x}_k$ is,
+\begin{equation}
+    \begin{aligned}
+        \mathrm{MSE}(\bar{x}_k)&=\sum_{h=1}^{M}w^2_h\mathrm{SE}^2(\bar{x}_{h,k}),\quad\text{Using the first property, and the bias is 0 so only the squared SE.}\\
+        &=\sum_{h=1}^{M}w^2_h\mathrm{MSE}(\bar{x}_{h,k})\\
+        \mathrm{MSE}(\bar{x}_k)&=\sum_{h=1}^{M}w^2_h\sigma^2_h\frac{N_h(1-f_h)}{(N_h-1)n_h}
+    \end{aligned}
+\end{equation}
+\subsubsection{Estimation of MSE}
+The estimation can be formulated easily that is the $\mathrm{MSE}(\bar{x}_{h,k})=\hat{\mathrm{SE}}(\bar{x}_{h,k})$, therefore
+\begin{equation}
+    \hat{\mathrm{MSE}}(\bar{x}_k)=\sum_{h=1}^{M}w^2_hs^2_{h,k}\frac{1-f_h}{n_h}
+\end{equation}
+
+\subsection{Cluster Sampling}
+\subsubsection{Single-stage Definition}
+For cluster sampling, peform a SRS of $m$ clusters from total of $M$ clusters. Given the cluster $h$, the sample mean is $\bar{x}_h$ and its population of units is $N_h$. Since single-stage cluster take all of the units, hence $\bar{x}_h=\mu_h$.\
+The population mean is defined as
+\begin{equation}
+    \mu=\sum_{h=1}^{M}\sum_{i=1}^{N_h}\frac{x_{hi}}{\sum_{h=1}^{M}N_h}
+\end{equation}
+The use SRS's theory to estimate $\mu$ is not the best choice in this case. Moreover, the arithmetic mean of cluster means is
+\begin{equation}\label{eq:2}
+    \bar{x}=\sum_{h=1}^{m}\frac{\bar{x}_h}{m}
+\end{equation}
+which is an unbiased estimator of the given,
+\begin{equation}\label{eq:1}
+    \sum_{h=1}^{M}\frac{\mu_h}{M}=\sum_{h=1}^{M}\sum_{i=1}^{N_h}\frac{x_{hi}}{MN_h} 
+\end{equation}
+Firstly, in the first stage using SRS to sample the clusters, then the \cref{eq:2} would be intuitively be the unbiased estimate of $\hat{\mu}$. However, if so, it is treating every cluster with the same size, and not accounts for cluster with
+difference in size. Which is why it is the ubiased estimator of only the \cref{eq:1} where $N_1=N_2=\ldots=N_h$. 
+
+\subsubsection{Single-stage Estimation}
+Let the total sum of observations of the units in collected clusters, which is just using the mean of each cluster as the representative value for all of the values in that cluster, be
+\begin{equation}
+    \sum_{h=1}^{m}N_h\bar{x}_h
+\end{equation}
+\paragraph{Fixed-number Cluster's Size}
+When the cluster size is considered to be fixed then the estimator is
+\begin{equation}\label{eq:Fixed-NumberClusterSize}
+    \bar{x}_F=\frac{\sum_{h=1}^{m}N_h\bar{x}_h}{\sum_{h=1}^{m}N_h}
+\end{equation}
+\paragraph{Random-number Cluster's Size}
+When the cluster size is considered to be random then the estimator is
+\begin{equation}
+    \bar{x}_R=\frac{\sum_{h=1}^{m}N_h\bar{x}_h}{N\frac{m}{M}}=\frac{M}{mN}\sum_{h=1}^{m}N_h\bar{x}_h
+\end{equation}
+where $N(m/M)$ is the expected number of units in a single-stage cluster sample. Since each 
+
+Note that when $N_1=N_2=\ldots=N_h$ then $\hat{\mu}=\bar{x}=\bar{x}_R=\bar{x}_F$. Check pp.~70--71 for the example, I have yet to understood the calculation there. But it has shown that $\bar{x}_R$ is an unbiased estimator of $\mu$.
+
+\paragraph{Comparison of Two Estimators}
+If the cluster means do not vary a lot, the estimator $\bar{x}_F$ would be preferred over $\bar{x}_R$, but when there is relatively large variation across cluster means, then the preference is otherwise. In other words, when the cluster 
+means are truly heterogeneous, $\bar{x}_R$ provides the smallest standard error.
+
+Intuitively, \cref{eq:Fixed-NumberClusterSize} almost resemble the variance formula in \cref{eq:GenericVarianceEquation}, this mean that $\bar{x}_F$ is trying to average the total sum of observation by dividing with all the collect cluster size 
+to address the problem of the \cref{eq:2} (unweighted average). This let each of the cluster mean pull each other, where the large cluster will create stronger pull, as in higher weight, to land on the correct $\hat{\mu}$. Then, if 
+the cluster means have high variability then $\bar{x}_F$ suffers.
+
+\subsubsection{Estimation of The MSE}
+The estimator for the MSE of $\bar{x}_R$ is 
+\begin{equation}
+    \hat{\text{MSE}}(\bar{x}_R) = \frac{M - m}{N^2 M m(m-1)}\sum_{h=1}^{m} \left(M N_h \bar{x}_h - N \bar{x}_R\right)^2.
+\end{equation}
+Since $\bar{x}_R$ is unbiased then $\mathrm{SE}(\bar{x}_R)=\sqrt{\hat{\mathrm{MSE}}(\bar{x}_R)}$
+
+For the two-stage cluster, fixed-number and random-number estimators are the same. The only difference is that $\bar{x}_h\neq\mu_h$, but $\bar{x}_h=\hat{\mu}_h$ (an unbiased estimator), because each cluster is sampled using SRS. Therefore, the bias
+of the bias of $\bar{x}_F$ and $\bar{x}_R$ of two-stage and single-stage are equal. However, MSE of those two are different.
+
+% --------------------------------------------------- %
+% =================== New Section =================== %
+% --------------------------------------------------- %
+\section{Estimation of the Population Proportion}
+Population proportion is sames as population mean where the values are now binary, that is, $z_1,z_2,\ldots,z_N$ where $z_i\in\{0,1\}$. The population proportion is obtained by
+\begin{equation}
+    \eta = \sum_{i=1}^{N}\frac{z_i}{N}
+\end{equation}
+Binary variables are for unit that only has two outcomes. If a binary outcome is within a range say, over 18 is an adult and not if less than 18. The notation is $z_i=1_{[18,\infty)}(x_i)$, with $1_A(x)$ an indicator variable being equal to 1 
+if $x\in A$ and $0$ otherwise. The population proportion can be written as
+\begin{equation*}
+    \eta=\frac1N\sum_{i=1}^{N}1_{[18,\infty)}(x_i)
+\end{equation*}
+The population variance $\sigma^2$ for the binary values is 
+\begin{equation}
+    \sigma^2=\frac1N\sum_{i=1}^{N}(z_i-\eta)^2=\sum_{i=1}^{N}\frac{z_i^2}{N}-\eta^2=\sum_{i=1}^{N}\frac{z_i}{N}-\eta^2=\eta(1-\eta)
+\end{equation}
+Thus the population mean and population variance for binary variables are perfectly related. Knowing either of them can calculate the others.
+\subsubsection{Sample Average and Sample Variance}
+The sample average is 
+\begin{equation}
+    \hat{\eta}_k=\sum_{i\in S_k}\frac{z_i}{n}
+\end{equation}
+The sample variance is 
+\begin{equation}
+    s^2_k=\sum_{i\in S_k}\frac{(z_i-\hat{\eta}_k)^2}{n-1}=\frac{n\hat{\eta}_k(1-\hat{\eta}_k)}{n-1}
+\end{equation}
+
+Since population proportion is seen as population mean the theories from \cref{sec:EstimationOfThePopulationMean} can be applied to population proportion. Practically, just replace the variable $x$ with the variable $z$.
+
+% --------------------------------------------------- %
+% =================== New Section =================== %
+% --------------------------------------------------- %
+\section{Estimation of the Population Variance}
+\subsection{Background}
+This section concerns with only the population variance of SRS, as for other sampling procedures are substantially harder. The population variance is defined as
+\begin{equation*}
+    \sigma^2=\sum_{i=1}^{N}\frac{(x_i-\mu)^2}{N}
+\end{equation*}
+and if a sample $S_k$ is collected using SRS of $n$ units, the sample variance is defined as
+\begin{equation*}
+    s^2_k=\sum_{i\in S_k}\frac{(x_i-\bar{x}_k)^2}{n-1}
+\end{equation*}
+The sample variance is not an unbiased estimator of $\sigma^2$. As it estimates
+\begin{equation*}
+    \hat{\sigma}^2=\frac{N\sigma^2}{N-1}=\sum_{i=1}^{N}\frac{(x_i-\mu)^2}{N-1}
+\end{equation*}
+I assume the reason it can estimate that is because SRS has an unbiased population mean estimator $\bar{x}_k$, and also the substraction of 1 unit. However, when the population size is large the estimate is very close to the population variance.
+But to an unbiased all-case estimator of $\sigma^2$ is
+\begin{equation}\label{eq:PopulationVarianceEstimator}
+    \hat{\sigma}=\frac{(N-1)s^2_k}{N} 
+\end{equation}
+Now, say if the sample variance use $n$ instead of $n-1$, the estimator, from \cref{eq:PopulationVarianceEstimator}, would be
+\begin{equation}
+    (N-1)\sum_{i\in S_k}\frac{(x_i-\bar{x}_k)^2}{Nn}
+\end{equation}
+Then the expected value and bias consecutively 
+\begin{equation}
+    \begin{aligned}
+        &\frac{(n-1)\sigma^2}{n}\\
+        &\frac{-\sigma^2}{n}
+    \end{aligned}
+\end{equation}
+If the ratio of the population variance and the sample is large the estimator suffers, but if only the sample is increasingly large then there would no long be a strong argument for using $n-1$.
+\begin{quote}
+    An intuitive reason for the use of $n - 1$ in the sample variance is that we first have to estimate the population mean $\mu$ with the sample average $\bar{x}_k$ and therefore we loose ``one degree of freedom'' from all $n$ 
+    observations or available degrees of freedom. The use of the sample average makes one observation redundant.  The divisor $n - 1$ is referred to as the number of \textit{degrees of freedom} used to calculate the sample variance.
+\end{quote}
+
+\subsection{MSE}
+The MSE of the estimator $\frac{N\sigma^2}{N-1}=\sum_{i=1}^{N}\frac{(x_i-\mu)^2}{N-1}$
+\begin{equation}\label{eq:PopulationVarianceMSE}
+    \text{MSE}\!\left(\frac{N s_k^2}{N - 1}\right) = \sigma^4 \left(\frac{(N - n)(N - 1)(Nn - N - n - 1)}{N(N - 2)(N - 3)\,n(n - 1)}\,\gamma_2 + \frac{2(N - n)}{(N - 2)(n - 1)}\right) 
+\end{equation}
+where $\gamma_2$ is the population excess kurtosis defined $\gamma_2=\sum_{i=1}^{N}\frac{(x_i-\mu)^4}{N\sigma^4}-3$. When the excess kurtosis is close to zero and the population is large with respect to the sample size, the MSE of the estimator 
+$(N - 1)s_k^2 / N$ is close to $2\sigma^4 / (n - 1)$. More generally, when the population size is large, the MSE is approximately $\sigma^4(\gamma_2 / n + 2/(n - 1))$, which is often used as an approximation to describe the above MSE. 
+
+\subsection{Estimation of The MSE}
+The MSE in \cref{eq:PopulationVarianceMSE} can be estimated by substituting estimates for the population parameters $\sigma^4$ and $\gamma_2$. An obvious and common estimator of the squared variance $\sigma^4$ is of course $(N - 1)^2 s_k^4 / N^2$, even though
+this estimator is biased. An estimator for the population kurtosis $\gamma_2$ was provided by $g_2$ in \cref{eq:KurtosisEquation}. This estimator is unfortunately biased for estimation of the population kurtosis, but it is considered an appropriate
+estimator for the kurtosis. Using these two estimators into and taking the square root \cref{eq:PopulationVarianceMSE}, an estimator of the precision of the variance estimator $(N - 1)s_k^2 / N$ is obtained. Thus an estimator of the MSE in 
+\cref{eq:PopulationVarianceMSE} is now
+\begin{equation}
+    \frac{(N - 1)^2 s_k^4}{N^2}
+    \left(
+        \frac{(N - n)(N - 1)(Nn - N - n - 1)}{N(N - 2)(N - 3)\,n(n - 1)}\,g_2 + \frac{2(N - n)}{(N - 2)(n - 1)}
+    \right)
+\end{equation}
+and in case we deal with large populations we may use the simplified version
+$s_k^4[g_2/n + 2/(n - 1)]$.
