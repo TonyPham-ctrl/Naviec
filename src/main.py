@@ -4,13 +4,13 @@ import os
 import sys
 from typing import List
 
-from src.data_ingestion.fetch_aemo import (
+from src.data_setup.fetch_aemo import (
     DEFAULT_END,
     DEFAULT_START,
     DEFAULT_TABLE,
     run_fetch,
 )
-from src.data_ingestion.clean_data import run_clean
+from src.data_setup.clean_data import run_clean
 
 
 def _parse_dt(value: str) -> dt.datetime:
@@ -34,34 +34,10 @@ def _run_clean(args: argparse.Namespace) -> None:
     print(f"Deleted {removed} file(s).")
 
 
-def _collect_missing_stages() -> List[str]:
-    # Check for optional stages to inform the user if they aren't present yet.
-    candidates = [
-        ("feature_engineering", "src/features/feature_engineering.py"),
-        ("train_model", "src/models/train_model.py"),
-        ("evaluate_model", "src/models/evaluate_model.py"),
-        ("optimizer", "src/optimizer/run_optimizer.py"),
-        ("api", "src/api/main.py"),
-        ("dashboard", "src/dashboard/app.py"),
-    ]
-    missing = []
-    for label, path in candidates:
-        if not os.path.exists(path):
-            missing.append(f"{label} ({path})")
-    return missing
-
-
 def _run_all(args: argparse.Namespace) -> None:
     # Run the pipeline stages that currently exist.
     _run_ingest(args)
 
-    missing = _collect_missing_stages()
-    if missing:
-        missing_text = "\n".join(f"- {item}" for item in missing)
-        sys.stderr.write(
-            "Note: Skipping stages that are not present in this repo:\n"
-            f"{missing_text}\n"
-        )
 
 
 def build_parser() -> argparse.ArgumentParser:

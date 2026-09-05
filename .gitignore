@@ -18,3 +18,7 @@ latex/*.gz
 latex/*_minted*
 
 src/__pycache__
+
+
+
+.codex
