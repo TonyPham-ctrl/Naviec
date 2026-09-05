@@ -91,7 +91,6 @@ External data sources may include:
 * Solar irradiance
 * Wind speed
 
-These signals strongly influence electricity price formation.
 
 ---
 

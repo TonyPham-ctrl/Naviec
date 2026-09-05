@@ -4,7 +4,7 @@ import os
 import sys
 from typing import List
 
-from src.data_setup.fetch_aemo import (
+from src.ingestion.fetch_aemo import (
     DEFAULT_END,
     DEFAULT_START,
     DEFAULT_TABLE,
