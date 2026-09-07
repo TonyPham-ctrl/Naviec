@@ -4,13 +4,13 @@ import os
 import sys
 from typing import List
 
-from src.ingestion.fetch_aemo import (
+from src.ingestion.main_ingestion import (
     DEFAULT_END,
     DEFAULT_START,
     DEFAULT_TABLE,
     run_fetch,
 )
-from src.data_setup.clean_data import run_clean
+from src.utils.clean_data import run_clean
 
 
 def _parse_dt(value: str) -> dt.datetime:
